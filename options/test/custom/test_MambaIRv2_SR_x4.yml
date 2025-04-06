@@ -1,0 +1,56 @@
+# general settings
+name: test_MambaIRv2_SRBase_x4
+model_type: MambaIRv2Model
+scale: 4
+num_gpu: 2
+manual_seed: 10
+
+datasets:
+  test_1:  # the 1st test dataset
+    name: Rareplanes
+    type: PairedImageDataset
+    dataroot_gt: /mnt/2tb-0/satellitepy/experiments/Rareplanes_crops/PS-RGB_tiled/test/gt
+    dataroot_lq: /mnt/2tb-0/satellitepy/experiments/Rareplanes_crops/PS-RGB_tiled/test/lq
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+# possibly add more test by adding test_2 etc.
+
+# network structures
+network_g:
+  type: MambaIRv2
+  upscale: 4
+  in_chans: 3
+  img_size: 64
+  img_range: 1.
+  embed_dim: 174
+  d_state: 16
+  depths: [6, 6, 6,6,6,6]
+  num_heads: [6,6,6,6,6,6]
+  window_size: 16
+  inner_rank: 64
+  num_tokens: 128
+  convffn_kernel_size: 5
+  mlp_ratio: 2.
+  upsampler: 'pixelshuffle'
+  resi_connection: '1conv'
+
+# path
+path:
+  pretrain_network_g: /home/louis/workspace/MambaIR/pretrained/mambairv2_classicSR_Base_x4.pth
+  strict_load_g: true
+
+# validation settings
+val:
+  save_img: false
+  suffix: ~  # add suffix to saved images, if None, use exp name
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: true
+    ssim:
+      type: calculate_ssim
+      crop_border: 4
+      test_y_channel: true
