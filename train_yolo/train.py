@@ -55,6 +55,8 @@ tb_logger = init_tb_loggers(opt)
 result = create_train_val_dataloader(opt, logger)
 train_loader, train_sampler, val_loaders, total_epochs, total_iters = result
 
+mambaIR_model = build_model(opt)
+
 # YOLO code
 
 model = YOLO('yolov12n.yaml')

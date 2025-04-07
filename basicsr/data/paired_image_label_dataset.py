@@ -1,7 +1,8 @@
 from torch.utils import data as data
 from torchvision.transforms.functional import normalize
 
-from basicsr.data.data_util import paired_paths_from_folder, paired_paths_from_lmdb, paired_paths_from_meta_info_file
+from basicsr.data.data_util import paired_paths_from_folder, paired_paths_from_lmdb, paired_paths_from_meta_info_file, \
+     paired_label_paths_from_folder
 from basicsr.data.transforms import augment, paired_random_crop
 from basicsr.utils import FileClient, imfrombytes, img2tensor
 from basicsr.utils.matlab_functions import rgb2ycbcr
@@ -57,15 +58,16 @@ class PairedImageLabelDataset(data.Dataset):
         else:
             self.filename_tmpl = '{}'
 
-        if self.io_backend_opt['type'] == 'lmdb':
-            self.io_backend_opt['db_paths'] = [self.lq_folder, self.gt_folder]
-            self.io_backend_opt['client_keys'] = ['lq', 'gt']
-            self.paths = None #TODO paired_paths_from_lmdb([self.lq_folder, self.gt_folder], ['lq', 'gt'])
-        elif 'meta_info_file' in self.opt and self.opt['meta_info_file'] is not None:
+        if self.io_backend_opt['type'] == 'lmdb':   # Unused case?
+            self.io_backend_opt['db_paths'] = [self.lq_folder, self.gt_folder, self.label_folder]
+            self.io_backend_opt['client_keys'] = ['lq', 'gt', 'label']
+            # self.paths = paired_label_paths_from_lmdb([self.lq_folder, self.gt_folder, self.label_folder], ['lq', 'gt', 'label'])
+        elif 'meta_info_file' in self.opt and self.opt['meta_info_file'] is not None: # Unused case?
+            #TODO?
             self.paths = paired_paths_from_meta_info_file([self.lq_folder, self.gt_folder], ['lq', 'gt'],
                                                           self.opt['meta_info_file'], self.filename_tmpl)
-        else:
-            self.paths = paired_paths_from_folder([self.lq_folder, self.gt_folder], ['lq', 'gt'], self.filename_tmpl, self.task)
+        else:   # Used case?
+            self.paths = paired_label_paths_from_folder([self.lq_folder, self.gt_folder, self.label_folder], ['lq', 'gt', 'label'], self.filename_tmpl, self.task)
 
     def __getitem__(self, index):
         if self.file_client is None:
@@ -75,7 +77,7 @@ class PairedImageLabelDataset(data.Dataset):
 
         # Load gt and lq images. Dimension order: HWC; channel order: BGR;
 
-        if self.task == 'CAR':
+        if self.task == 'CAR':      # Unused case??
             # image range: [0, 255], int., H W 1
 
             gt_path = self.paths[index]['gt_path']
@@ -112,7 +114,7 @@ class PairedImageLabelDataset(data.Dataset):
                 np.random.seed(seed=0)
             img_lq = img_gt + np.random.normal(0, self.noise/255., img_gt.shape)
 
-        else:
+        else:   # Only relevant task for us
             # image range: [0, 1], float32., H W 3
             gt_path = self.paths[index]['gt_path']
             img_bytes = self.file_client.get(gt_path, 'gt')
@@ -121,13 +123,17 @@ class PairedImageLabelDataset(data.Dataset):
             img_bytes = self.file_client.get(lq_path, 'lq')
             img_lq = imfrombytes(img_bytes, float32=True)
 
-        # augmentation for training
-        if self.opt['phase'] == 'train':
-            gt_size = self.opt['gt_size']
-            # random crop
-            img_gt, img_lq = paired_random_crop(img_gt, img_lq, gt_size, scale, gt_path)
-            # flip, rotation
-            img_gt, img_lq = augment([img_gt, img_lq], self.opt['use_hflip'], self.opt['use_rot'])
+            label_path = self.paths[index]['label_path']
+
+            label = open(label_path, 'r').read()
+
+        # augmentation for training # TODO: augmentations
+        # if self.opt['phase'] == 'train':
+        #     gt_size = self.opt['gt_size']
+        #     # random crop
+        #     img_gt, img_lq = paired_random_crop(img_gt, img_lq, gt_size, scale, gt_path)
+        #     # flip, rotation
+        #     img_gt, img_lq = augment([img_gt, img_lq], self.opt['use_hflip'], self.opt['use_rot'])
 
         # color space transform
         if 'color' in self.opt and self.opt['color'] == 'y':
@@ -146,7 +152,7 @@ class PairedImageLabelDataset(data.Dataset):
             normalize(img_lq, self.mean, self.std, inplace=True)
             normalize(img_gt, self.mean, self.std, inplace=True)
 
-        return {'lq': img_lq, 'gt': img_gt, 'lq_path': lq_path, 'gt_path': gt_path}
+        return {'lq': img_lq, 'gt': img_gt, 'label': label, 'lq_path': lq_path, 'gt_path': gt_path, 'label_path': label_path}
 
     def __len__(self):
         return len(self.paths)
