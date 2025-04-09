@@ -7,7 +7,26 @@ from basicsr.models.sr_model import SRModel
 
 @MODEL_REGISTRY.register()
 class MambaIRv2Model(SRModel):
-    """MambaIRv2 model for image restoration."""
+    """MambaIRv2 model for image restoration + object detection."""
+
+    def __init__(self, opt):
+        super(SRModel, self).__init__(opt)
+
+        # define network
+        self.net_g = build_network(opt['network_g'])
+        self.net_g = self.model_to_device(self.net_g)
+        self.print_network(self.net_g)
+
+        # load pretrained models
+        load_path = self.opt['path'].get('pretrain_network_g', None)
+        if load_path is not None:
+            param_key = self.opt['path'].get('param_key_g', 'params')
+            self.load_network(self.net_g, load_path, self.opt['path'].get('strict_load_g', True), param_key)
+
+        # Add yolo model and wrap in nn.Sequential
+
+        if self.is_train:
+            self.init_training_settings()
 
     # test by partitioning
     def test(self):
