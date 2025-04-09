@@ -1,6 +1,6 @@
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
-from ultralytics.utils import ASSETS, ROOT, WEIGHTS_DIR, checks
+from yolov12.ultralytics.utils import ASSETS, ROOT, WEIGHTS_DIR, checks
 
 # Constants used in tests
 MODEL = WEIGHTS_DIR / "path with spaces" / "yolo11n.pt"  # test spaces in path

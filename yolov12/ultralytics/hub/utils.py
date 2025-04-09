@@ -9,7 +9,7 @@ from pathlib import Path
 
 import requests
 
-from ultralytics.utils import (
+from yolov12.ultralytics.utils import (
     ARGV,
     ENVIRONMENT,
     IS_COLAB,
@@ -26,7 +26,7 @@ from ultralytics.utils import (
     colorstr,
     get_git_origin_url,
 )
-from ultralytics.utils.downloads import GITHUB_ASSETS_NAMES
+from yolov12.ultralytics.utils.downloads import GITHUB_ASSETS_NAMES
 
 HUB_API_ROOT = os.environ.get("ULTRALYTICS_HUB_API", "https://api.ultralytics.com")
 HUB_WEB_ROOT = os.environ.get("ULTRALYTICS_HUB_WEB", "https://hub.ultralytics.com")

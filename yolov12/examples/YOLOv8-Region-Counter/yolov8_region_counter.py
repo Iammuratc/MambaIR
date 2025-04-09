@@ -10,8 +10,8 @@ from shapely.geometry import Polygon
 from shapely.geometry.point import Point
 
 from ultralytics import YOLO
-from ultralytics.utils.files import increment_path
-from ultralytics.utils.plotting import Annotator, colors
+from yolov12.ultralytics.utils.files import increment_path
+from yolov12.ultralytics.utils.plotting import Annotator, colors
 
 track_history = defaultdict(list)
 

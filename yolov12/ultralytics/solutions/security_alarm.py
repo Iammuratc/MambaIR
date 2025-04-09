@@ -1,8 +1,8 @@
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
-from ultralytics.solutions.solutions import BaseSolution
-from ultralytics.utils import LOGGER
-from ultralytics.utils.plotting import Annotator, colors
+from yolov12.ultralytics.solutions.solutions import BaseSolution
+from yolov12.ultralytics.utils import LOGGER
+from yolov12.ultralytics.utils.plotting import Annotator, colors
 
 
 class SecurityAlarm(BaseSolution):

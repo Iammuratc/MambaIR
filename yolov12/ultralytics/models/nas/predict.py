@@ -2,9 +2,9 @@
 
 import torch
 
-from ultralytics.engine.predictor import BasePredictor
-from ultralytics.engine.results import Results
-from ultralytics.utils import ops
+from yolov12.ultralytics.engine.predictor import BasePredictor
+from yolov12.ultralytics.engine.results import Results
+from yolov12.ultralytics.utils import ops
 
 
 class NASPredictor(BasePredictor):

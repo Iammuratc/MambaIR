@@ -7,13 +7,13 @@ from copy import copy
 import numpy as np
 import torch.nn as nn
 
-from ultralytics.data import build_dataloader, build_yolo_dataset
-from ultralytics.engine.trainer import BaseTrainer
-from ultralytics.models import yolo
-from ultralytics.nn.tasks import DetectionModel
-from ultralytics.utils import LOGGER, RANK
-from ultralytics.utils.plotting import plot_images, plot_labels, plot_results
-from ultralytics.utils.torch_utils import de_parallel, torch_distributed_zero_first
+from yolov12.ultralytics.data import build_dataloader, build_yolo_dataset
+from yolov12.ultralytics.engine.trainer import BaseTrainer
+from yolov12.ultralytics.models import yolo
+from yolov12.ultralytics.nn.tasks import DetectionModel
+from yolov12.ultralytics.utils import LOGGER, RANK
+from yolov12.ultralytics.utils.plotting import plot_images, plot_labels, plot_results
+from yolov12.ultralytics.utils.torch_utils import de_parallel, torch_distributed_zero_first
 
 
 class DetectionTrainer(BaseTrainer):
@@ -22,7 +22,7 @@ class DetectionTrainer(BaseTrainer):
 
     Example:
         ```python
-        from ultralytics.models.yolo.detect import DetectionTrainer
+        from yolov12.ultralytics.models.yolo.detect import DetectionTrainer
 
         args = dict(model="yolo11n.pt", data="coco8.yaml", epochs=3)
         trainer = DetectionTrainer(overrides=args)

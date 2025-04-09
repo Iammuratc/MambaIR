@@ -67,7 +67,7 @@ def spaces_in_path(path):
 
     Examples:
         Use the context manager to handle paths with spaces:
-        >>> from ultralytics.utils.files import spaces_in_path
+        >>> from yolov12.ultralytics.utils.files import spaces_in_path
         >>> with spaces_in_path('/path/with spaces') as new_path:
         >>> # Your code here
     """
@@ -194,12 +194,12 @@ def update_models(model_names=("yolo11n.pt",), source_dir=Path("."), update_name
 
     Examples:
         Update specified YOLO models and save them in 'updated_models' subdirectory:
-        >>> from ultralytics.utils.files import update_models
+        >>> from yolov12.ultralytics.utils.files import update_models
         >>> model_names = ("yolo11n.pt", "yolov8s.pt")
         >>> update_models(model_names, source_dir=Path("/models"), update_names=True)
     """
     from ultralytics import YOLO
-    from ultralytics.nn.autobackend import default_class_names
+    from yolov12.ultralytics.nn.autobackend import default_class_names
 
     target_dir = source_dir / "updated_models"
     target_dir.mkdir(parents=True, exist_ok=True)  # Ensure target directory exists

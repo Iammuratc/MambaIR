@@ -4,10 +4,10 @@ from pathlib import Path
 
 import torch
 
-from ultralytics.models.yolo.detect import DetectionValidator
-from ultralytics.utils import LOGGER, ops
-from ultralytics.utils.metrics import OBBMetrics, batch_probiou
-from ultralytics.utils.plotting import output_to_rotated_target, plot_images
+from yolov12.ultralytics.models.yolo.detect import DetectionValidator
+from yolov12.ultralytics.utils import LOGGER, ops
+from yolov12.ultralytics.utils.metrics import OBBMetrics, batch_probiou
+from yolov12.ultralytics.utils.plotting import output_to_rotated_target, plot_images
 
 
 class OBBValidator(DetectionValidator):
@@ -16,7 +16,7 @@ class OBBValidator(DetectionValidator):
 
     Example:
         ```python
-        from ultralytics.models.yolo.obb import OBBValidator
+        from yolov12.ultralytics.models.yolo.obb import OBBValidator
 
         args = dict(model="yolov8n-obb.pt", data="dota8.yaml")
         validator = OBBValidator(args=args)
@@ -132,7 +132,7 @@ class OBBValidator(DetectionValidator):
         """Save YOLO detections to a txt file in normalized coordinates in a specific format."""
         import numpy as np
 
-        from ultralytics.engine.results import Results
+        from yolov12.ultralytics.engine.results import Results
 
         rboxes = torch.cat([predn[:, :4], predn[:, -1:]], dim=-1)
         # xywh, r, conf, cls

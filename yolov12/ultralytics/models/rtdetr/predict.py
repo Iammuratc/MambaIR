@@ -2,10 +2,10 @@
 
 import torch
 
-from ultralytics.data.augment import LetterBox
-from ultralytics.engine.predictor import BasePredictor
-from ultralytics.engine.results import Results
-from ultralytics.utils import ops
+from yolov12.ultralytics.data.augment import LetterBox
+from yolov12.ultralytics.engine.predictor import BasePredictor
+from yolov12.ultralytics.engine.results import Results
+from yolov12.ultralytics.utils import ops
 
 
 class RTDETRPredictor(BasePredictor):
@@ -18,8 +18,8 @@ class RTDETRPredictor(BasePredictor):
 
     Example:
         ```python
-        from ultralytics.utils import ASSETS
-        from ultralytics.models.rtdetr import RTDETRPredictor
+        from yolov12.ultralytics.utils import ASSETS
+        from yolov12.ultralytics.models.rtdetr import RTDETRPredictor
 
         args = dict(model="rtdetr-l.pt", source=ASSETS)
         predictor = RTDETRPredictor(overrides=args)

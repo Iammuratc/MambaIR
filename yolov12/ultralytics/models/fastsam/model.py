@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from ultralytics.engine.model import Model
+from yolov12.ultralytics.engine.model import Model
 
 from .predict import FastSAMPredictor
 from .val import FastSAMValidator

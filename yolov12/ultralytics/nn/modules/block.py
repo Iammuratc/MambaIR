@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from ultralytics.utils.torch_utils import fuse_conv_and_bn
+from yolov12.ultralytics.utils.torch_utils import fuse_conv_and_bn
 
 from .conv import Conv, DWConv, GhostConv, LightConv, RepConv, autopad
 from .transformer import TransformerBlock
@@ -1061,7 +1061,7 @@ class C2fPSA(C2f):
 
     Examples:
         >>> import torch
-        >>> from ultralytics.models.common import C2fPSA
+        >>> from yolov12.ultralytics.models.common import C2fPSA
         >>> model = C2fPSA(c1=64, c2=64, n=3, e=0.5)
         >>> x = torch.randn(1, 64, 128, 128)
         >>> output = model(x)
@@ -1187,7 +1187,7 @@ class AAttn(nn.Module):
 
     Examples:
         >>> import torch
-        >>> from ultralytics.nn.modules import AAttn
+        >>> from yolov12.ultralytics.nn.modules import AAttn
         >>> model = AAttn(dim=64, num_heads=2, area=4)
         >>> x = torch.randn(2, 64, 128, 128)
         >>> output = model(x)
@@ -1335,7 +1335,7 @@ class A2C2f(nn.Module):
 
     Examples:
         >>> import torch
-        >>> from ultralytics.nn.modules import A2C2f
+        >>> from yolov12.ultralytics.nn.modules import A2C2f
         >>> model = A2C2f(c1=64, c2=64, n=2, a2=True, area=4, residual=True, e=0.5)
         >>> x = torch.randn(2, 64, 128, 128)
         >>> output = model(x)

@@ -136,7 +136,7 @@ class TQDM(tqdm_original):
         __init__: Initializes the TQDM object with custom settings.
 
     Examples:
-        >>> from ultralytics.utils import TQDM
+        >>> from yolov12.ultralytics.utils import TQDM
         >>> for i in TQDM(range(100)):
         ...     # Your processing code here
         ...     pass
@@ -157,7 +157,7 @@ class TQDM(tqdm_original):
             - The default bar format is set to TQDM_BAR_FORMAT unless overridden in kwargs.
 
         Examples:
-            >>> from ultralytics.utils import TQDM
+            >>> from yolov12.ultralytics.utils import TQDM
             >>> for i in TQDM(range(100)):
             ...     # Your code here
             ...     pass
@@ -410,7 +410,7 @@ class ThreadingLocked:
 
     Example:
         ```python
-        from ultralytics.utils import ThreadingLocked
+        from yolov12.ultralytics.utils import ThreadingLocked
 
         @ThreadingLocked()
         def my_function():
@@ -1182,7 +1182,7 @@ class SettingsManager(JSONDict):
         """Initializes the SettingsManager with default settings and loads user settings."""
         import hashlib
 
-        from ultralytics.utils.torch_utils import torch_distributed_zero_first
+        from yolov12.ultralytics.utils.torch_utils import torch_distributed_zero_first
 
         root = GIT_DIR or Path()
         datasets_root = (root.parent if GIT_DIR and is_dir_writeable(root.parent) else root).resolve()
@@ -1322,7 +1322,7 @@ TESTS_RUNNING = is_pytest_running() or is_github_action_running()
 set_sentry()
 
 # Apply monkey patches
-from ultralytics.utils.patches import imread, imshow, imwrite, torch_load, torch_save
+from yolov12.ultralytics.utils.patches import imread, imshow, imwrite, torch_load, torch_save
 
 torch.load = torch_load
 torch.save = torch_save

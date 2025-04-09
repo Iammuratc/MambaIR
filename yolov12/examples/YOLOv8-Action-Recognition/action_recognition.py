@@ -12,9 +12,9 @@ import torch
 from transformers import AutoModel, AutoProcessor
 
 from ultralytics import YOLO
-from ultralytics.data.loaders import get_best_youtube_url
-from ultralytics.utils.plotting import Annotator
-from ultralytics.utils.torch_utils import select_device
+from yolov12.ultralytics.data.loaders import get_best_youtube_url
+from yolov12.ultralytics.utils.plotting import Annotator
+from yolov12.ultralytics.utils.torch_utils import select_device
 
 
 class TorchVisionVideoClassifier:

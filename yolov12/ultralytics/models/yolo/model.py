@@ -2,10 +2,10 @@
 
 from pathlib import Path
 
-from ultralytics.engine.model import Model
-from ultralytics.models import yolo
-from ultralytics.nn.tasks import ClassificationModel, DetectionModel, OBBModel, PoseModel, SegmentationModel, WorldModel
-from ultralytics.utils import ROOT, yaml_load
+from yolov12.ultralytics.engine.model import Model
+from yolov12.ultralytics.models import yolo
+from yolov12.ultralytics.nn.tasks import ClassificationModel, DetectionModel, OBBModel, PoseModel, SegmentationModel, WorldModel
+from yolov12.ultralytics.utils import ROOT, yaml_load
 
 
 class YOLO(Model):

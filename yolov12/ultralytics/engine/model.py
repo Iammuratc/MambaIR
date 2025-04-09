@@ -10,11 +10,11 @@ from PIL import Image
 
 from huggingface_hub import PyTorchModelHubMixin
 
-from ultralytics.cfg import TASK2DATA, get_cfg, get_save_dir
-from ultralytics.engine.results import Results
-from ultralytics.hub import HUB_WEB_ROOT, HUBTrainingSession
-from ultralytics.nn.tasks import attempt_load_one_weight, guess_model_task, nn, yaml_model_load
-from ultralytics.utils import (
+from yolov12.ultralytics.cfg import TASK2DATA, get_cfg, get_save_dir
+from yolov12.ultralytics.engine.results import Results
+from yolov12.ultralytics.hub import HUB_WEB_ROOT, HUBTrainingSession
+from yolov12.ultralytics.nn.tasks import attempt_load_one_weight, guess_model_task, nn, yaml_model_load
+from yolov12.ultralytics.utils import (
     ARGV,
     ASSETS,
     DEFAULT_CFG_DICT,
@@ -598,7 +598,7 @@ class Model(nn.Module, PyTorchModelHubMixin, repo_url="https://github.com/ultral
             - Batch size is set to 1 for tracking in videos.
         """
         if not hasattr(self.predictor, "trackers"):
-            from ultralytics.trackers import register_tracker
+            from yolov12.ultralytics.trackers import register_tracker
 
             register_tracker(self, persist)
         kwargs["conf"] = kwargs.get("conf") or 0.1  # ByteTrack-based method needs low confidence predictions as input
@@ -677,7 +677,7 @@ class Model(nn.Module, PyTorchModelHubMixin, repo_url="https://github.com/ultral
             >>> print(results)
         """
         self._check_is_pytorch_model()
-        from ultralytics.utils.benchmarks import benchmark
+        from yolov12.ultralytics.utils.benchmarks import benchmark
 
         custom = {"verbose": False}  # method defaults
         args = {**DEFAULT_CFG_DICT, **self.model.args, **custom, **kwargs, "mode": "benchmark"}
@@ -848,7 +848,7 @@ class Model(nn.Module, PyTorchModelHubMixin, repo_url="https://github.com/ultral
         """
         self._check_is_pytorch_model()
         if use_ray:
-            from ultralytics.utils.tuner import run_ray_tune
+            from yolov12.ultralytics.utils.tuner import run_ray_tune
 
             return run_ray_tune(self, max_samples=iterations, *args, **kwargs)
         else:
@@ -906,7 +906,7 @@ class Model(nn.Module, PyTorchModelHubMixin, repo_url="https://github.com/ultral
             >>> print(model.names)
             {0: 'person', 1: 'bicycle', 2: 'car', ...}
         """
-        from ultralytics.nn.autobackend import check_class_names
+        from yolov12.ultralytics.nn.autobackend import check_class_names
 
         if hasattr(self.model, "names"):
             return check_class_names(self.model.names)

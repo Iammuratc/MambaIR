@@ -36,7 +36,7 @@ def auto_annotate(
         output_dir (str | None): Directory to save the annotated results. If None, a default directory is created.
 
     Examples:
-        >>> from ultralytics.data.annotator import auto_annotate
+        >>> from yolov12.ultralytics.data.annotator import auto_annotate
         >>> auto_annotate(data="ultralytics/assets", det_model="yolo11n.pt", sam_model="mobile_sam.pt")
 
     Notes:

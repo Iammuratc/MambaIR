@@ -11,9 +11,9 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from ultralytics.utils import DATASETS_DIR, LOGGER, NUM_THREADS, TQDM
-from ultralytics.utils.downloads import download
-from ultralytics.utils.files import increment_path
+from yolov12.ultralytics.utils import DATASETS_DIR, LOGGER, NUM_THREADS, TQDM
+from yolov12.ultralytics.utils.downloads import download
+from yolov12.ultralytics.utils.files import increment_path
 
 
 def coco91_to_coco80_class():
@@ -239,7 +239,7 @@ def convert_coco(
 
     Example:
         ```python
-        from ultralytics.data.converter import convert_coco
+        from yolov12.ultralytics.data.converter import convert_coco
 
         convert_coco("../datasets/coco/annotations/", use_segments=True, use_keypoints=False, cls91to80=False)
         convert_coco(
@@ -354,7 +354,7 @@ def convert_segment_masks_to_yolo_seg(masks_dir, output_dir, classes):
 
     Example:
         ```python
-        from ultralytics.data.converter import convert_segment_masks_to_yolo_seg
+        from yolov12.ultralytics.data.converter import convert_segment_masks_to_yolo_seg
 
         # The classes here is the total classes in the dataset, for COCO dataset we have 80 classes
         convert_segment_masks_to_yolo_seg("path/to/masks_directory", "path/to/output/directory", classes=80)
@@ -430,7 +430,7 @@ def convert_dota_to_yolo_obb(dota_root_path: str):
 
     Example:
         ```python
-        from ultralytics.data.converter import convert_dota_to_yolo_obb
+        from yolov12.ultralytics.data.converter import convert_dota_to_yolo_obb
 
         convert_dota_to_yolo_obb("path/to/DOTA")
         ```
@@ -604,9 +604,9 @@ def yolo_bbox2segment(im_dir, save_dir=None, sam_model="sam_b.pt", device=None):
                 └─ NNN.txt
     """
     from ultralytics import SAM
-    from ultralytics.data import YOLODataset
-    from ultralytics.utils import LOGGER
-    from ultralytics.utils.ops import xywh2xyxy
+    from yolov12.ultralytics.data import YOLODataset
+    from yolov12.ultralytics.utils import LOGGER
+    from yolov12.ultralytics.utils.ops import xywh2xyxy
 
     # NOTE: add placeholder to pass class index check
     dataset = YOLODataset(im_dir, data=dict(names=list(range(1000))))
@@ -653,7 +653,7 @@ def create_synthetic_coco_dataset():
     them in the COCO dataset structure. It uses multithreading to generate images efficiently.
 
     Examples:
-        >>> from ultralytics.data.converter import create_synthetic_coco_dataset
+        >>> from yolov12.ultralytics.data.converter import create_synthetic_coco_dataset
         >>> create_synthetic_coco_dataset()
 
     Notes:

@@ -15,10 +15,10 @@ import requests
 import torch
 from PIL import Image
 
-from ultralytics.data.utils import FORMATS_HELP_MSG, IMG_FORMATS, VID_FORMATS
-from ultralytics.utils import IS_COLAB, IS_KAGGLE, LOGGER, ops
-from ultralytics.utils.checks import check_requirements
-from ultralytics.utils.patches import imread
+from yolov12.ultralytics.data.utils import FORMATS_HELP_MSG, IMG_FORMATS, VID_FORMATS
+from yolov12.ultralytics.utils import IS_COLAB, IS_KAGGLE, LOGGER, ops
+from yolov12.ultralytics.utils.checks import check_requirements
+from yolov12.ultralytics.utils.patches import imread
 
 
 @dataclass

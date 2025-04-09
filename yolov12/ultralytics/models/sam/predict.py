@@ -14,11 +14,11 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from ultralytics.data.augment import LetterBox
-from ultralytics.engine.predictor import BasePredictor
-from ultralytics.engine.results import Results
-from ultralytics.utils import DEFAULT_CFG, ops
-from ultralytics.utils.torch_utils import select_device, smart_inference_mode
+from yolov12.ultralytics.data.augment import LetterBox
+from yolov12.ultralytics.engine.predictor import BasePredictor
+from yolov12.ultralytics.engine.results import Results
+from yolov12.ultralytics.utils import DEFAULT_CFG, ops
+from yolov12.ultralytics.utils.torch_utils import select_device, smart_inference_mode
 
 from .amg import (
     batch_iterator,

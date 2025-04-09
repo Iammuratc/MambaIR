@@ -10,8 +10,8 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
-from ultralytics.data.utils import exif_size, img2label_paths
-from ultralytics.utils.checks import check_requirements
+from yolov12.ultralytics.data.utils import exif_size, img2label_paths
+from yolov12.ultralytics.utils.checks import check_requirements
 
 
 def bbox_iof(polygon1, bbox2, eps=1e-6):

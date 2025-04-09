@@ -7,11 +7,11 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from ultralytics.models.yolo.detect import DetectionValidator
-from ultralytics.utils import LOGGER, NUM_THREADS, ops
-from ultralytics.utils.checks import check_requirements
-from ultralytics.utils.metrics import SegmentMetrics, box_iou, mask_iou
-from ultralytics.utils.plotting import output_to_target, plot_images
+from yolov12.ultralytics.models.yolo.detect import DetectionValidator
+from yolov12.ultralytics.utils import LOGGER, NUM_THREADS, ops
+from yolov12.ultralytics.utils.checks import check_requirements
+from yolov12.ultralytics.utils.metrics import SegmentMetrics, box_iou, mask_iou
+from yolov12.ultralytics.utils.plotting import output_to_target, plot_images
 
 
 class SegmentationValidator(DetectionValidator):
@@ -20,7 +20,7 @@ class SegmentationValidator(DetectionValidator):
 
     Example:
         ```python
-        from ultralytics.models.yolo.segment import SegmentationValidator
+        from yolov12.ultralytics.models.yolo.segment import SegmentationValidator
 
         args = dict(model="yolov8n-seg.pt", data="coco8-seg.yaml")
         validator = SegmentationValidator(args=args)
@@ -245,7 +245,7 @@ class SegmentationValidator(DetectionValidator):
 
     def save_one_txt(self, predn, pred_masks, save_conf, shape, file):
         """Save YOLO detections to a txt file in normalized coordinates in a specific format."""
-        from ultralytics.engine.results import Results
+        from yolov12.ultralytics.engine.results import Results
 
         Results(
             np.zeros((shape[0], shape[1]), dtype=np.uint8),
