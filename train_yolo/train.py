@@ -3,6 +3,7 @@ import sys
 import os
 
 from basicsr.train import load_resume_state, init_tb_loggers, create_train_val_dataloader
+from yolov12.ultralytics.utils.torch_utils import autocast
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, '..'))
@@ -60,6 +61,24 @@ mambaIR_model = build_model(opt)
 # YOLO code
 
 model = YOLO('yolov12n.yaml')
+
+#------------------
+# Forward
+batch = 'xy'
+tloss = None
+i = 42
+
+with autocast(model.amp):
+  batch = model.preprocess_batch(batch)
+  loss,loss_items = model(batch)
+  tloss = (
+    (tloss * i + loss_items) / (i + 1) if tloss is not None else loss_items
+  )
+
+# Backward
+model.scaler.scale(loss).backward()
+#------------------
+
 
 # Train the model
 results = model.train(
