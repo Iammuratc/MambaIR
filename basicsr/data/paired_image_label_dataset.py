@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from torch.utils import data as data
 from torchvision.transforms.functional import normalize
 
@@ -7,6 +9,8 @@ from basicsr.data.transforms import augment, paired_random_crop
 from basicsr.utils import FileClient, imfrombytes, img2tensor
 from basicsr.utils.matlab_functions import rgb2ycbcr
 from basicsr.utils.registry import DATASET_REGISTRY
+
+from yolov12.ultralytics.data.utils import verify_image_label
 
 import numpy as np
 
@@ -123,17 +127,18 @@ class PairedImageLabelDataset(data.Dataset):
             img_bytes = self.file_client.get(lq_path, 'lq')
             img_lq = imfrombytes(img_bytes, float32=True)
 
-            label_path = self.paths[index]['label_path']
+            label_path = str(Path(self.label_folder[0]) / Path(gt_path).name.split('.')[0]) + '.txt'
+            # label_path = self.paths[index]['label_path']
 
-            label = open(label_path, 'r').read()
+            label_file = open(label_path, 'r').read()
 
         # augmentation for training # TODO: augmentations
-        # if self.opt['phase'] == 'train':
-        #     gt_size = self.opt['gt_size']
-        #     # random crop
-        #     img_gt, img_lq = paired_random_crop(img_gt, img_lq, gt_size, scale, gt_path)
-        #     # flip, rotation
-        #     img_gt, img_lq = augment([img_gt, img_lq], self.opt['use_hflip'], self.opt['use_rot'])
+        if self.opt['phase'] == 'train':
+            gt_size = self.opt['gt_size']
+            # random crop
+            img_gt, img_lq = paired_random_crop(img_gt, img_lq, gt_size, scale, gt_path)
+            # flip, rotation
+            # img_gt, img_lq = augment([img_gt, img_lq], self.opt['use_hflip'], self.opt['use_rot'])
 
         # color space transform
         if 'color' in self.opt and self.opt['color'] == 'y':
@@ -146,11 +151,32 @@ class PairedImageLabelDataset(data.Dataset):
             img_gt = img_gt[0:img_lq.shape[0] * scale, 0:img_lq.shape[1] * scale, :]
 
         # BGR to RGB, HWC to CHW, numpy to tensor
+
+        prefix = '\x1b[34m\x1b[1mtrain: \x1b[0m'
+        keypoint = False
+        num_cls = 4
+        nkpt = 0
+        ndim = 0
+
+        im_file, lb, shape, segments, keypoint, nm_f, nf_f, ne_f, nc_f, msg = verify_image_label((img_gt, label_path, prefix, keypoint, num_cls, nkpt, ndim), verify_img=False)
+
         img_gt, img_lq = img2tensor([img_gt, img_lq], bgr2rgb=True, float32=True)
         # normalize
         if self.mean is not None or self.std is not None:
             normalize(img_lq, self.mean, self.std, inplace=True)
             normalize(img_gt, self.mean, self.std, inplace=True)
+
+        # TODO label code
+        label = {
+            'im_file': gt_path,
+            'shape': img_gt.shape,
+            "cls": lb[:, 0:1],  # n, 1
+            "bboxes": lb[:, 1:],  # n, 4
+            "segments": segments,
+            "keypoints": keypoint,
+            "normalized": True,
+            "bbox_format": "xywh",
+                        }
 
         return {'lq': img_lq, 'gt': img_gt, 'label': label, 'lq_path': lq_path, 'gt_path': gt_path, 'label_path': label_path}
 

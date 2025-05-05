@@ -1,8 +1,8 @@
 # general settings for image SR training
 name: MambaIRv2_SR_x4
-model_type: MambaIRv2Model
+model_type: MambaIRv2YoloModel
 scale: 4
-num_gpu: 2
+num_gpu: 1
 manual_seed: 10
 
 # dataset and data loader settings
@@ -10,11 +10,13 @@ datasets:
   train:
     task: SR
     name: DF2K
-    type: PairedImageDataset
+    type: PairedImageLabelDataset
     dataroot_gt:
       - /mnt/2tb-1/image_enhancement/experiments/MambaIR_Rareplanes_pretrained/DOTA_split/images/train_SR_pad/output_cropped_hr
     dataroot_lq:
       - /mnt/2tb-1/image_enhancement/experiments/MambaIR_Rareplanes_pretrained/DOTA_split/images/train_SR_pad/output_downscaled_lr
+    dataroot_label:
+      - /mnt/2tb-1/image_enhancement/experiments/MambaIR_Rareplanes_pretrained/DOTA_split/labels/train
     filename_tmpl: '{}'
     io_backend:
       type: disk
@@ -26,15 +28,16 @@ datasets:
     # data loader
     use_shuffle: true
     num_worker_per_gpu: 32
-    batch_size_per_gpu: 4
+    batch_size_per_gpu: 2
     dataset_enlarge_ratio: 100
     prefetch_mode: ~
 
   val:
     name: Set14
-    type: PairedImageDataset
+    type: PairedImageLabelDataset
     dataroot_gt: /mnt/2tb-1/image_enhancement/experiments/MambaIR_Rareplanes_pretrained/DOTA_split/images/val_SR_pad/output_downscaled_lr
     dataroot_lq: /mnt/2tb-1/image_enhancement/experiments/MambaIR_Rareplanes_pretrained/DOTA_split/images/val_SR_pad/output_downscaled_lr
+    dataroot_label: /mnt/2tb-1/image_enhancement/experiments/MambaIR_Rareplanes_pretrained/DOTA_split/labels/val
     filename_tmpl: '{}'
     io_backend:
       type: disk

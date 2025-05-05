@@ -1,7 +1,11 @@
+import collections
 import queue as Queue
 import threading
+from typing import Optional, Dict, Union, Type, Tuple, Callable
+
 import torch
 from torch.utils.data import DataLoader
+from torch.utils.data._utils.collate import collate
 
 
 class PrefetchGenerator(threading.Thread):

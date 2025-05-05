@@ -1,12 +1,15 @@
 import torch
+from collections import OrderedDict
 from torch.nn import functional as F
 
+from basicsr import build_network
 from basicsr.utils.registry import MODEL_REGISTRY
 from basicsr.models.sr_model import SRModel
+from yolov12.ultralytics.models import YOLO
 
 
 @MODEL_REGISTRY.register()
-class MambaIRv2Model(SRModel):
+class MambaIRv2YoloModel(SRModel):
     """MambaIRv2 model for image restoration + object detection."""
 
     def __init__(self, opt):
@@ -24,6 +27,8 @@ class MambaIRv2Model(SRModel):
             self.load_network(self.net_g, load_path, self.opt['path'].get('strict_load_g', True), param_key)
 
         # Add yolo model and wrap in nn.Sequential
+        self.yolo_model = YOLO('yolov12n.yaml')
+        self.yolo_model = self.yolo_model.to(self.device)
 
         if self.is_train:
             self.init_training_settings()
@@ -123,3 +128,47 @@ class MambaIRv2Model(SRModel):
             self.net_g.train()
         _, _, h, w = self.output.size()
         self.output = self.output[:, :, 0:h - mod_pad_h * scale, 0:w - mod_pad_w * scale]
+
+
+    def feed_data(self, data):
+        self.lq = data['lq'].to(self.device)
+        if 'gt' in data:
+            self.gt = data['gt'].to(self.device)
+        if 'label' in data:
+            self.label = data['label']#.to(self.device)
+
+
+    def optimize_parameters(self, current_iter):
+        self.optimizer_g.zero_grad()
+        self.output = self.net_g(self.lq)
+
+        # Forward pass through the YOLO model
+        self.yolo_out = self.yolo_model.model(self.output)
+
+        l_total = 0
+        loss_dict = OrderedDict()
+        # pixel loss
+        if self.cri_pix:
+            l_pix = self.cri_pix(self.output, self.gt)
+            l_total += l_pix
+            loss_dict['l_pix'] = l_pix
+        # perceptual loss
+        if self.cri_perceptual:
+            l_percep, l_style = self.cri_perceptual(self.output, self.gt)
+            if l_percep is not None:
+                l_total += l_percep
+                loss_dict['l_percep'] = l_percep
+            if l_style is not None:
+                l_total += l_style
+                loss_dict['l_style'] = l_style
+
+        # Additional loss for YOLO model
+        # loss_total += yolo_loss
+
+        l_total.backward()
+        self.optimizer_g.step()
+
+        self.log_dict = self.reduce_loss_dict(loss_dict)
+
+        if self.ema_decay > 0:
+            self.model_ema(decay=self.ema_decay)

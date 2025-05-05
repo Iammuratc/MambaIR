@@ -1,4 +1,8 @@
+import collections
+import contextlib
 import importlib
+from typing import Optional, Dict, Union, Type, Tuple, Callable
+
 import numpy as np
 import random
 import torch
@@ -6,6 +10,9 @@ import torch.utils.data
 from copy import deepcopy
 from functools import partial
 from os import path as osp
+
+from torch.utils.data._utils.collate import collate, collate_tensor_fn, collate_numpy_array_fn, collate_numpy_scalar_fn, \
+    collate_float_fn, collate_int_fn, collate_str_fn
 
 from basicsr.data.prefetch_dataloader import PrefetchDataLoader
 from basicsr.utils import get_root_logger, scandir
@@ -82,6 +89,8 @@ def build_dataloader(dataset, dataset_opt, num_gpu=1, dist=False, sampler=None, 
     dataloader_args['pin_memory'] = dataset_opt.get('pin_memory', False)
     dataloader_args['persistent_workers'] = dataset_opt.get('persistent_workers', False)
 
+    dataloader_args['collate_fn'] = my_custom_collate
+
     prefetch_mode = dataset_opt.get('prefetch_mode')
     if prefetch_mode == 'cpu':  # CPUPrefetcher
         num_prefetch_queue = dataset_opt.get('num_prefetch_queue', 1)
@@ -93,6 +102,87 @@ def build_dataloader(dataset, dataset_opt, num_gpu=1, dist=False, sampler=None, 
         # prefetch_mode='cuda': dataloader for CUDAPrefetcher
         return torch.utils.data.DataLoader(**dataloader_args)
 
+
+default_collate_fn_map: Dict[Union[Type, Tuple[Type, ...]], Callable] = {torch.Tensor: collate_tensor_fn}
+with contextlib.suppress(ImportError):
+    import numpy as np
+    # For both ndarray and memmap (subclass of ndarray)
+    default_collate_fn_map[np.ndarray] = collate_numpy_array_fn
+    # See scalars hierarchy: https://numpy.org/doc/stable/reference/arrays.scalars.html
+    # Skip string scalars
+    default_collate_fn_map[(np.bool_, np.number, np.object_)] = collate_numpy_scalar_fn
+default_collate_fn_map[float] = collate_float_fn
+default_collate_fn_map[int] = collate_int_fn
+default_collate_fn_map[str] = collate_str_fn
+default_collate_fn_map[bytes] = collate_str_fn
+
+def my_custom_collate(batch, *, collate_fn_map: Optional[Dict[Union[Type, Tuple[Type, ...]], Callable]] = default_collate_fn_map):
+    r"""
+        General collate function that handles collection type of element within each batch
+        and opens function registry to deal with specific element types. `default_collate_fn_map`
+        provides default collate functions for tensors, numpy arrays, numbers and strings.
+
+        Args:
+            batch: a single batch to be collated
+            collate_fn_map: Optional dictionary mapping from element type to the corresponding collate function.
+              If the element type isn't present in this dictionary,
+              this function will go through each key of the dictionary in the insertion order to
+              invoke the corresponding collate function if the element type is a subclass of the key.
+
+        Examples:
+            >>> # Extend this function to handle batch of tensors
+            >>> def collate_tensor_fn(batch, *, collate_fn_map):
+            ...     return torch.stack(batch, 0)
+            >>> def custom_collate(batch):
+            ...     collate_map = {torch.Tensor: collate_tensor_fn}
+            ...     return collate(batch, collate_fn_map=collate_map)
+            >>> # Extend `default_collate` by in-place modifying `default_collate_fn_map`
+            >>> default_collate_fn_map.update({torch.Tensor: collate_tensor_fn})
+
+        Note:
+            Each collate function requires a positional argument for batch and a keyword argument
+            for the dictionary of collate functions as `collate_fn_map`.
+    """
+    elem = batch[0]
+    elem_type = type(elem)
+
+    # if collate_fn_map is not None:
+    #     if elem_type in collate_fn_map:
+    #         return collate_fn_map[elem_type](batch, collate_fn_map=collate_fn_map)
+    #
+    #     for collate_type in collate_fn_map:
+    #         if isinstance(elem, collate_type):
+    #             return collate_fn_map[collate_type](batch, collate_fn_map=collate_fn_map)
+
+    if isinstance(elem, collections.abc.Mapping):
+        out = {}
+        for key in elem:
+            if key == "label":# Special case for handling labels
+                # Special handling for 'label'
+                out[key] = [d[key] for d in batch]  # Keep labels as a list
+            else:
+                out[key] = collate([d[key] for d in batch], collate_fn_map=collate_fn_map)
+        return out
+    elif isinstance(elem, tuple) and hasattr(elem, '_fields'):  # namedtuple
+        return elem_type(*(collate(samples, collate_fn_map=collate_fn_map) for samples in zip(*batch)))
+    elif isinstance(elem, collections.abc.Sequence):
+        # check to make sure that the elements in batch have consistent size
+        it = iter(batch)
+        elem_size = len(next(it))
+        if not all(len(elem) == elem_size for elem in it):
+            raise RuntimeError('each element in list of batch should be of equal size')
+        transposed = list(zip(*batch))  # It may be accessed twice, so we use a list.
+
+        if isinstance(elem, tuple):
+            return [collate(samples, collate_fn_map=collate_fn_map) for samples in transposed]  # Backwards compatibility.
+        else:
+            try:
+                return elem_type([collate(samples, collate_fn_map=collate_fn_map) for samples in transposed])
+            except TypeError:
+                # The sequence type may not support `__init__(iterable)` (e.g., `range`).
+                return [collate(samples, collate_fn_map=collate_fn_map) for samples in transposed]
+
+    raise TypeError('ErrorWithCustomCollate: Unknown element type')
 
 def worker_init_fn(worker_id, num_workers, rank, seed):
     # Set the worker seed to num_workers * rank + worker_id + seed
