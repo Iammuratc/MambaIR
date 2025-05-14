@@ -1,5 +1,7 @@
 import cv2
 import random
+
+import numpy as np
 import torch
 
 
@@ -23,7 +25,7 @@ def mod_crop(img, scale):
     return img
 
 
-def paired_random_crop(img_gts, img_lqs, gt_patch_size, scale, gt_path=None):
+def paired_random_crop(img_gts, img_lqs, gt_patch_size, scale, gt_path=None, label=None, cutoff_thresh=0.5):
     """Paired random crop. Support Numpy array and Tensor inputs.
 
     It crops lists of lq and gt images with corresponding locations.
@@ -48,6 +50,8 @@ def paired_random_crop(img_gts, img_lqs, gt_patch_size, scale, gt_path=None):
         img_gts = [img_gts]
     if not isinstance(img_lqs, list):
         img_lqs = [img_lqs]
+
+    # tfull_img = img_gts[0].copy()
 
     # determine input type: Numpy array or Tensor
     input_type = 'Tensor' if torch.is_tensor(img_gts[0]) else 'Numpy'
@@ -88,7 +92,83 @@ def paired_random_crop(img_gts, img_lqs, gt_patch_size, scale, gt_path=None):
         img_gts = img_gts[0]
     if len(img_lqs) == 1:
         img_lqs = img_lqs[0]
-    return img_gts, img_lqs
+
+    if label is not None:
+        patch_xmin = (left * scale) / w_gt
+        patch_ymin = (top * scale) / h_gt
+        patch_xmax = (left * scale + gt_patch_size) / w_gt
+        patch_ymax = (top * scale + gt_patch_size) / h_gt
+
+        new_bboxes = []
+        new_segments = []
+        new_classes = []
+
+        # test_patch = img_gts if not type(img_gts) == list else img_gts[0]
+
+        for cls, bbox, seg in zip(label['cls'], label['bboxes'], label['segments']):
+            # for (y, x) in seg.tolist():
+            #     x_scale = int(x * (w_gt-1))
+            #     y_scale = int(y * (h_gt-1))
+            #     tfull_img[x_scale, y_scale, 0] = 1
+            #     tfull_img[x_scale, y_scale, 1] = 0
+            #     tfull_img[x_scale, y_scale, 2] = 0
+
+            cx, cy, bw, bh = bbox
+            x1 = cx - bw / 2
+            x2 = cx + bw / 2
+            y1 = cy - bh / 2
+            y2 = cy + bh / 2
+
+            inter_x1 = max(x1, patch_xmin)
+            inter_y1 = max(y1, patch_ymin)
+            inter_x2 = min(x2, patch_xmax)
+            inter_y2 = min(y2, patch_ymax)
+
+            inter_w = max(inter_x2 - inter_x1, 0)
+            inter_h = max(inter_y2 - inter_y1, 0)
+            inter_area = inter_w * inter_h
+            orig_area = bw * bh
+
+            # Skip if overlap is too small
+            if inter_area / orig_area < cutoff_thresh:
+                continue
+
+            # Shift and clip the segmentation
+            seg_np = np.array(seg)
+            seg_np[:, 0] = (seg_np[:, 0] - patch_xmin) / (patch_xmax - patch_xmin)
+            seg_np[:, 1] = (seg_np[:, 1] - patch_ymin) / (patch_ymax - patch_ymin)
+
+            # Clamp segment points to [0, 1]
+            seg_np = np.clip(seg_np, 0, 1)
+
+            # Update bbox to new cropped location
+            cx_new = (inter_x1 + inter_x2) / 2 - patch_xmin
+            cy_new = (inter_y1 + inter_y2) / 2 - patch_ymin
+            bw_new = inter_x2 - inter_x1
+            bh_new = inter_y2 - inter_y1
+
+            # Normalize to patch
+            cx_new /= (patch_xmax - patch_xmin)
+            cy_new /= (patch_ymax - patch_ymin)
+            bw_new /= (patch_xmax - patch_xmin)
+            bh_new /= (patch_ymax - patch_ymin)
+
+            new_bboxes.append([cx_new, cy_new, bw_new, bh_new])
+            new_segments.append(seg_np.tolist())
+            new_classes.append(cls)
+
+            # for (y, x) in seg_np.tolist():
+            #     x_scale = int(x * (gt_patch_size-1))
+            #     y_scale = int(y * (gt_patch_size-1))
+            #     test_patch[x_scale, y_scale, 0] = 1
+            #     test_patch[x_scale, y_scale, 1] = 0
+            #     test_patch[x_scale, y_scale, 2] = 1
+
+        label['bboxes'] = new_bboxes
+        label['segments'] = new_segments
+        label['cls'] = new_classes
+
+    return img_gts, img_lqs, label
 
 
 def augment(imgs, hflip=True, rotation=True, flows=None, return_status=False):

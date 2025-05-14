@@ -6,6 +6,8 @@ from basicsr import build_network
 from basicsr.utils.registry import MODEL_REGISTRY
 from basicsr.models.sr_model import SRModel
 from yolov12.ultralytics.models import YOLO
+from yolov12.ultralytics.utils.loss import v8DetectionLoss
+from yolov12.ultralytics.utils import IterableSimpleNamespace
 
 
 @MODEL_REGISTRY.register()
@@ -29,6 +31,9 @@ class MambaIRv2YoloModel(SRModel):
         # Add yolo model and wrap in nn.Sequential
         self.yolo_model = YOLO('yolov12n.yaml')
         self.yolo_model = self.yolo_model.to(self.device)
+        self.yolo_model.model.args['box'] = 7.5
+        self.yolo_model.model.args = IterableSimpleNamespace(**self.yolo_model.model.args)
+        self.criterion = v8DetectionLoss(self.yolo_model.model)
 
         if self.is_train:
             self.init_training_settings()
@@ -142,8 +147,19 @@ class MambaIRv2YoloModel(SRModel):
         self.optimizer_g.zero_grad()
         self.output = self.net_g(self.lq)
 
+        yolo_in = {
+            'img': self.output.clone(),
+            'cls': self.label['cls'],
+            'bboxes': self.label['bboxes'],
+            'batch_idx': self.label['batch_idx'],
+        }
+
         # Forward pass through the YOLO model
-        self.yolo_out = self.yolo_model.model(self.output)
+        if len(self.label['cls']) > 0:
+            preds = self.yolo_model.model.forward(self.output)
+            yolo_loss = self.criterion(preds, yolo_in)[0]
+        else:
+            yolo_loss = 0
 
         l_total = 0
         loss_dict = OrderedDict()
@@ -163,7 +179,7 @@ class MambaIRv2YoloModel(SRModel):
                 loss_dict['l_style'] = l_style
 
         # Additional loss for YOLO model
-        # loss_total += yolo_loss
+        l_total += yolo_loss
 
         l_total.backward()
         self.optimizer_g.step()
@@ -172,3 +188,19 @@ class MambaIRv2YoloModel(SRModel):
 
         if self.ema_decay > 0:
             self.model_ema(decay=self.ema_decay)
+
+
+    def setup_optimizers(self):
+        train_opt = self.opt['train']
+        optim_params = []
+        for k, v in self.net_g.named_parameters():
+            if v.requires_grad:
+                optim_params.append(v)
+
+        for k, v in self.yolo_model.named_parameters():
+            if v.requires_grad:
+                optim_params.append(v)
+
+        optim_type = train_opt['optim_g'].pop('type')
+        self.optimizer_g = self.get_optimizer(optim_type, optim_params, **train_opt['optim_g'])
+        self.optimizers.append(self.optimizer_g)

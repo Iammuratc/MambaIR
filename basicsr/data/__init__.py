@@ -146,20 +146,57 @@ def my_custom_collate(batch, *, collate_fn_map: Optional[Dict[Union[Type, Tuple[
     elem = batch[0]
     elem_type = type(elem)
 
-    # if collate_fn_map is not None:
-    #     if elem_type in collate_fn_map:
-    #         return collate_fn_map[elem_type](batch, collate_fn_map=collate_fn_map)
-    #
-    #     for collate_type in collate_fn_map:
-    #         if isinstance(elem, collate_type):
-    #             return collate_fn_map[collate_type](batch, collate_fn_map=collate_fn_map)
-
+    # x = batch[0]['label']
     if isinstance(elem, collections.abc.Mapping):
         out = {}
         for key in elem:
             if key == "label":# Special case for handling labels
                 # Special handling for 'label'
-                out[key] = [d[key] for d in batch]  # Keep labels as a list
+                # out[key] = [d[key] for d in batch]  # Keep labels as a list
+
+                ##################
+                label_keys = batch[0]["label"].keys()
+                combined_label = {k: [] for k in label_keys}
+                batch_idx_list = []
+
+                for i, sample in enumerate(batch):
+                    label = sample["label"]
+                    n_objs = len(label.get("bboxes", [])) if label.get("bboxes", []) is not None else 0
+
+                    for k in label_keys:
+                        v = label.get(k, [])
+                        if v is None:
+                            v = []  # treat None as empty
+                        combined_label[k].append(v)
+
+                    if n_objs > 0:
+                        batch_idx_list.append(torch.full((n_objs, 1), i, dtype=torch.long))
+
+                for k in combined_label:
+                    if k in {"bboxes", "cls", "masks", "keypoints", "obb"}:
+                        # Convert all valid entries to tensors, skip empty ones
+                        tensor_list = []
+                        for v in combined_label[k]:
+                            if isinstance(v, torch.Tensor):
+                                tensor_list.append(v)
+                            elif isinstance(v, list) and len(v) > 0:
+                                tensor_list.append(torch.tensor(np.array(v)))
+                        combined_label[k] = torch.cat(tensor_list, dim=0) if tensor_list else torch.empty((0,))
+                    elif k == "segments":
+                        combined_label[k] = sum((v for v in combined_label[k] if v), [])  # flatten, skip empty
+                    else:
+                        combined_label[k] = combined_label[k]  # keep as list
+
+                if batch_idx_list:
+                    combined_label["batch_idx"] = torch.cat(batch_idx_list, dim=0).flatten()
+                else:
+                    combined_label["batch_idx"] = torch.empty((0, 1), dtype=torch.long).flatten()
+
+                check = batch[0]['label']
+                length = len(batch[0]['label']['cls'])
+                out[key] = combined_label
+                ###############
+
             else:
                 out[key] = collate([d[key] for d in batch], collate_fn_map=collate_fn_map)
         return out
