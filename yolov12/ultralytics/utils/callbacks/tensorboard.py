@@ -1,6 +1,6 @@
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
-from yolov12.ultralytics.utils import LOGGER, SETTINGS, TESTS_RUNNING, colorstr
+from ultralytics.utils import LOGGER, SETTINGS, TESTS_RUNNING, colorstr
 
 try:
     # WARNING: do not move SummaryWriter import due to protobuf bug https://github.com/ultralytics/ultralytics/pull/4674
@@ -15,7 +15,7 @@ try:
     import warnings
     from copy import deepcopy
 
-    from yolov12.ultralytics.utils.torch_utils import de_parallel, torch
+    from ultralytics.utils.torch_utils import de_parallel, torch
 
 except (ImportError, AssertionError, TypeError, AttributeError):
     # TypeError for handling 'Descriptors cannot not be created directly.' protobuf errors in Windows

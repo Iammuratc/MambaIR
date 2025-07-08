@@ -15,9 +15,9 @@ from pathlib import Path
 
 import torch
 
-from yolov12.ultralytics.engine.model import Model
-from yolov12.ultralytics.utils.downloads import attempt_download_asset
-from yolov12.ultralytics.utils.torch_utils import model_info
+from ultralytics.engine.model import Model
+from ultralytics.utils.downloads import attempt_download_asset
+from ultralytics.utils.torch_utils import model_info
 
 from .predict import NASPredictor
 from .val import NASValidator

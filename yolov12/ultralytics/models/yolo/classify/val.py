@@ -2,11 +2,11 @@
 
 import torch
 
-from yolov12.ultralytics.data import ClassificationDataset, build_dataloader
-from yolov12.ultralytics.engine.validator import BaseValidator
-from yolov12.ultralytics.utils import LOGGER
-from yolov12.ultralytics.utils.metrics import ClassifyMetrics, ConfusionMatrix
-from yolov12.ultralytics.utils.plotting import plot_images
+from ultralytics.data import ClassificationDataset, build_dataloader
+from ultralytics.engine.validator import BaseValidator
+from ultralytics.utils import LOGGER
+from ultralytics.utils.metrics import ClassifyMetrics, ConfusionMatrix
+from ultralytics.utils.plotting import plot_images
 
 
 class ClassificationValidator(BaseValidator):
@@ -18,7 +18,7 @@ class ClassificationValidator(BaseValidator):
 
     Example:
         ```python
-        from yolov12.ultralytics.models.yolo.classify import ClassificationValidator
+        from ultralytics.models.yolo.classify import ClassificationValidator
 
         args = dict(model="yolov8n-cls.pt", data="imagenet10")
         validator = ClassificationValidator(args=args)

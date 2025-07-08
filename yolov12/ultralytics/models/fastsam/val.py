@@ -1,7 +1,7 @@
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
-from yolov12.ultralytics.models.yolo.segment import SegmentationValidator
-from yolov12.ultralytics.utils.metrics import SegmentMetrics
+from ultralytics.models.yolo.segment import SegmentationValidator
+from ultralytics.utils.metrics import SegmentMetrics
 
 
 class FastSAMValidator(SegmentationValidator):

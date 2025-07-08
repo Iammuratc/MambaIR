@@ -15,8 +15,8 @@ import cv2
 import numpy as np
 from PIL import Image, ImageOps
 
-from yolov12.ultralytics.nn.autobackend import check_class_names
-from yolov12.ultralytics.utils import (
+from ultralytics.nn.autobackend import check_class_names
+from ultralytics.utils import (
     DATASETS_DIR,
     LOGGER,
     NUM_THREADS,
@@ -30,9 +30,9 @@ from yolov12.ultralytics.utils import (
     yaml_load,
     yaml_save,
 )
-from yolov12.ultralytics.utils.checks import check_file, check_font, is_ascii
-from yolov12.ultralytics.utils.downloads import download, safe_download, unzip_file
-from yolov12.ultralytics.utils.ops import segments2boxes
+from ultralytics.utils.checks import check_file, check_font, is_ascii
+from ultralytics.utils.downloads import download, safe_download, unzip_file
+from ultralytics.utils.ops import segments2boxes
 
 HELP_URL = "See https://docs.ultralytics.com/datasets for dataset formatting guidance."
 IMG_FORMATS = {"bmp", "dng", "jpeg", "jpg", "mpo", "png", "tif", "tiff", "webp", "pfm", "heic"}  # image suffixes
@@ -94,26 +94,28 @@ def verify_image(args):
     return (im_file, cls), nf, nc, msg
 
 
-def verify_image_label(args):
+def verify_image_label(args, verify_img=True):
     """Verify one image-label pair."""
     im_file, lb_file, prefix, keypoint, num_cls, nkpt, ndim = args
     # Number (missing, found, empty, corrupt), message, segments, keypoints
     nm, nf, ne, nc, msg, segments, keypoints = 0, 0, 0, 0, "", [], None
     try:
-        # Verify images
-        im = Image.open(im_file)
-        im.verify()  # PIL verify
-        shape = exif_size(im)  # image size
-        shape = (shape[1], shape[0])  # hw
-        assert (shape[0] > 9) & (shape[1] > 9), f"image size {shape} <10 pixels"
-        assert im.format.lower() in IMG_FORMATS, f"invalid image format {im.format}. {FORMATS_HELP_MSG}"
-        if im.format.lower() in {"jpg", "jpeg"}:
-            with open(im_file, "rb") as f:
-                f.seek(-2, 2)
-                if f.read() != b"\xff\xd9":  # corrupt JPEG
-                    ImageOps.exif_transpose(Image.open(im_file)).save(im_file, "JPEG", subsampling=0, quality=100)
+        if verify_img:
+            # Verify images
+            im = Image.open(im_file)
+            im.verify()  # PIL verify
+            shape = exif_size(im)  # image size
+            shape = (shape[1], shape[0])  # hw
+            assert (shape[0] > 9) & (shape[1] > 9), f"image size {shape} <10 pixels"
+            assert im.format.lower() in IMG_FORMATS, f"invalid image format {im.format}. {FORMATS_HELP_MSG}"
+            if im.format.lower() in {"jpg", "jpeg"}:
+                with open(im_file, "rb") as f:
+                    f.seek(-2, 2)
+                    if f.read() != b"\xff\xd9":  # corrupt JPEG
+                        ImageOps.exif_transpose(Image.open(im_file)).save(im_file, "JPEG", subsampling=0, quality=100)
                     msg = f"{prefix}WARNING ⚠️ {im_file}: corrupt JPEG restored and saved"
-
+        else:
+            shape = im_file.shape[:2]
         # Verify labels
         if os.path.isfile(lb_file):
             nf = 1  # label found
@@ -190,7 +192,7 @@ def visualize_image_annotations(image_path, txt_path, label_map):
     """
     import matplotlib.pyplot as plt
 
-    from yolov12.ultralytics.utils.plotting import colors
+    from ultralytics.utils.plotting import colors
 
     img = np.array(Image.open(image_path))
     img_height, img_width = img.shape[:2]
@@ -482,7 +484,7 @@ class HUBDatasetStats:
         Download *.zip files from https://github.com/ultralytics/hub/tree/main/example_datasets
             i.e. https://github.com/ultralytics/hub/raw/main/example_datasets/coco8.zip for coco8.zip.
         ```python
-        from yolov12.ultralytics.data.utils import HUBDatasetStats
+        from ultralytics.data.utils import HUBDatasetStats
 
         stats = HUBDatasetStats("path/to/coco8.zip", task="detect")  # detect dataset
         stats = HUBDatasetStats("path/to/coco8-seg.zip", task="segment")  # segment dataset
@@ -581,7 +583,7 @@ class HUBDatasetStats:
                     "labels": [{Path(k).name: v} for k, v in dataset.imgs],
                 }
             else:
-                from yolov12.ultralytics.data import YOLODataset
+                from ultralytics.data import YOLODataset
 
                 dataset = YOLODataset(img_path=self.data[split], data=self.data, task=self.task)
                 x = np.array(
@@ -613,7 +615,7 @@ class HUBDatasetStats:
 
     def process_images(self):
         """Compress images for Ultralytics HUB."""
-        from yolov12.ultralytics.data import YOLODataset  # ClassificationDataset
+        from ultralytics.data import YOLODataset  # ClassificationDataset
 
         self.im_dir.mkdir(parents=True, exist_ok=True)  # makes dataset-hub/images/
         for split in "train", "val", "test":
@@ -642,7 +644,7 @@ def compress_one_image(f, f_new=None, max_dim=1920, quality=50):
     Example:
         ```python
         from pathlib import Path
-        from yolov12.ultralytics.data.utils import compress_one_image
+        from ultralytics.data.utils import compress_one_image
 
         for f in Path("path/to/dataset").rglob("*.jpg"):
             compress_one_image(f)
@@ -675,7 +677,7 @@ def autosplit(path=DATASETS_DIR / "coco8/images", weights=(0.9, 0.1, 0.0), annot
 
     Example:
         ```python
-        from yolov12.ultralytics.data.utils import autosplit
+        from ultralytics.data.utils import autosplit
 
         autosplit()
         ```

@@ -1,7 +1,7 @@
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
-from yolov12.ultralytics.solutions.solutions import BaseSolution
-from yolov12.ultralytics.utils.plotting import Annotator, colors
+from ultralytics.solutions.solutions import BaseSolution
+from ultralytics.utils.plotting import Annotator, colors
 
 
 class QueueManager(BaseSolution):

@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from yolov12.ultralytics.nn.modules import LayerNorm2d
+from ultralytics.nn.modules import LayerNorm2d
 
 from .blocks import (
     Block,

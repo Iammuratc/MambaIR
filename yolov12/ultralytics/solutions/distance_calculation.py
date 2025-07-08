@@ -4,8 +4,8 @@ import math
 
 import cv2
 
-from yolov12.ultralytics.solutions.solutions import BaseSolution
-from yolov12.ultralytics.utils.plotting import Annotator, colors
+from ultralytics.solutions.solutions import BaseSolution
+from ultralytics.utils.plotting import Annotator, colors
 
 
 class DistanceCalculation(BaseSolution):
@@ -88,7 +88,7 @@ class DistanceCalculation(BaseSolution):
 
         Examples:
             >>> import numpy as np
-            >>> from yolov12.ultralytics.solutions import DistanceCalculation
+            >>> from ultralytics.solutions import DistanceCalculation
             >>> dc = DistanceCalculation()
             >>> frame = np.random.randint(0, 255, (480, 640, 3), dtype=np.uint8)
             >>> processed_frame = dc.calculate(frame)

@@ -9,15 +9,15 @@ import pytest
 
 from tests import MODEL, SOURCE
 from ultralytics import YOLO
-from yolov12.ultralytics.cfg import TASK2DATA, TASK2MODEL, TASKS
-from yolov12.ultralytics.utils import (
+from ultralytics.cfg import TASK2DATA, TASK2MODEL, TASKS
+from ultralytics.utils import (
     IS_RASPBERRYPI,
     LINUX,
     MACOS,
     WINDOWS,
     checks,
 )
-from yolov12.ultralytics.utils.torch_utils import TORCH_1_9, TORCH_1_13
+from ultralytics.utils.torch_utils import TORCH_1_9, TORCH_1_13
 
 
 def test_export_torchscript():

@@ -11,7 +11,7 @@ import thop
 import torch
 import torch.nn as nn
 
-from yolov12.ultralytics.nn.modules import (
+from ultralytics.nn.modules import (
     AIFI,
     C1,
     C2,
@@ -66,9 +66,9 @@ from yolov12.ultralytics.nn.modules import (
     v10Detect,
     A2C2f,
 )
-from yolov12.ultralytics.utils import DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS, LOGGER, colorstr, emojis, yaml_load
-from yolov12.ultralytics.utils.checks import check_requirements, check_suffix, check_yaml
-from yolov12.ultralytics.utils.loss import (
+from ultralytics.utils import DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS, LOGGER, colorstr, emojis, yaml_load
+from ultralytics.utils.checks import check_requirements, check_suffix, check_yaml
+from ultralytics.utils.loss import (
     E2EDetectLoss,
     v8ClassificationLoss,
     v8DetectionLoss,
@@ -76,9 +76,9 @@ from yolov12.ultralytics.utils.loss import (
     v8PoseLoss,
     v8SegmentationLoss,
 )
-from yolov12.ultralytics.utils.ops import make_divisible
-from yolov12.ultralytics.utils.plotting import feature_visualization
-from yolov12.ultralytics.utils.torch_utils import (
+from ultralytics.utils.ops import make_divisible
+from ultralytics.utils.plotting import feature_visualization
+from ultralytics.utils.torch_utils import (
     fuse_conv_and_bn,
     fuse_deconv_and_bn,
     initialize_weights,
@@ -513,7 +513,7 @@ class RTDETRDetectionModel(DetectionModel):
 
     def init_criterion(self):
         """Initialize the loss criterion for the RTDETRDetectionModel."""
-        from yolov12.ultralytics.models.utils.loss import RTDETRDetectionLoss
+        from ultralytics.models.utils.loss import RTDETRDetectionLoss
 
         return RTDETRDetectionLoss(nc=self.nc, use_vfl=True)
 
@@ -799,7 +799,7 @@ def torch_safe_load(weight, safe_only=False):
 
     Example:
     ```python
-    from yolov12.ultralytics.nn.tasks import torch_safe_load
+    from ultralytics.nn.tasks import torch_safe_load
 
     ckpt, file = torch_safe_load("path/to/best.pt", safe_only=True)
     ```
@@ -808,7 +808,7 @@ def torch_safe_load(weight, safe_only=False):
         ckpt (dict): The loaded model checkpoint.
         file (str): The loaded filename
     """
-    from yolov12.ultralytics.utils.downloads import attempt_download_asset
+    from ultralytics.utils.downloads import attempt_download_asset
 
     check_suffix(file=weight, suffix=".pt")
     file = attempt_download_asset(weight)  # search online if missing locally

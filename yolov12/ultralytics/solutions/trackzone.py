@@ -3,8 +3,8 @@
 import cv2
 import numpy as np
 
-from yolov12.ultralytics.solutions.solutions import BaseSolution
-from yolov12.ultralytics.utils.plotting import Annotator, colors
+from ultralytics.solutions.solutions import BaseSolution
+from ultralytics.utils.plotting import Annotator, colors
 
 
 class TrackZone(BaseSolution):

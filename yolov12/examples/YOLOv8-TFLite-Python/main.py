@@ -8,7 +8,7 @@ import numpy as np
 import tensorflow as tf
 import yaml
 
-from yolov12.ultralytics.utils import ASSETS
+from ultralytics.utils import ASSETS
 
 try:
     from tflite_runtime.interpreter import Interpreter

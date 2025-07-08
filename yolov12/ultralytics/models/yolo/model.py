@@ -2,15 +2,14 @@
 
 from pathlib import Path
 
-from yolov12.ultralytics.engine.model import Model
-from yolov12.ultralytics.models import yolo
-from yolov12.ultralytics.nn.tasks import ClassificationModel, DetectionModel, OBBModel, PoseModel, SegmentationModel, WorldModel
-from yolov12.ultralytics.utils import ROOT, yaml_load
+from ultralytics.engine.model import Model
+from ultralytics.models import yolo
+from ultralytics.nn.tasks import ClassificationModel, DetectionModel, OBBModel, PoseModel, SegmentationModel, WorldModel
+from ultralytics.utils import ROOT, yaml_load
 
 
 class YOLO(Model):
     """YOLO (You Only Look Once) object detection model."""
-
     def __init__(self, model="yolo11n.pt", task=None, verbose=False):
         """Initialize YOLO model, switching to YOLOWorld if model filename contains '-world'."""
         path = Path(model)

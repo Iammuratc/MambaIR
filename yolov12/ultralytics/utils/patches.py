@@ -78,7 +78,7 @@ def torch_load(*args, **kwargs):
         For PyTorch versions 2.0 and above, this function automatically sets 'weights_only=False'
         if the argument is not provided, to avoid deprecation warnings.
     """
-    from yolov12.ultralytics.utils.torch_utils import TORCH_1_13
+    from ultralytics.utils.torch_utils import TORCH_1_13
 
     if TORCH_1_13 and "weights_only" not in kwargs:
         kwargs["weights_only"] = False

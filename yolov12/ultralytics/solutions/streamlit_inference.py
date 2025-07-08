@@ -6,9 +6,9 @@ from typing import Any
 import cv2
 
 from ultralytics import YOLO
-from yolov12.ultralytics.utils import LOGGER
-from yolov12.ultralytics.utils.checks import check_requirements
-from yolov12.ultralytics.utils.downloads import GITHUB_ASSETS_STEMS
+from ultralytics.utils import LOGGER
+from ultralytics.utils.checks import check_requirements
+from ultralytics.utils.downloads import GITHUB_ASSETS_STEMS
 
 
 class Inference:

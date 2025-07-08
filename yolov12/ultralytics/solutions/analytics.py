@@ -8,7 +8,7 @@ import numpy as np
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-from yolov12.ultralytics.solutions.solutions import BaseSolution  # Import a parent class
+from ultralytics.solutions.solutions import BaseSolution  # Import a parent class
 
 
 class Analytics(BaseSolution):

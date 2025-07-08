@@ -68,14 +68,14 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from yolov12.ultralytics.cfg import TASK2DATA, get_cfg
-from yolov12.ultralytics.data import build_dataloader
-from yolov12.ultralytics.data.dataset import YOLODataset
-from yolov12.ultralytics.data.utils import check_cls_dataset, check_det_dataset
-from yolov12.ultralytics.nn.autobackend import check_class_names, default_class_names
-from yolov12.ultralytics.nn.modules import C2f, Classify, Detect, RTDETRDecoder
-from yolov12.ultralytics.nn.tasks import DetectionModel, SegmentationModel, WorldModel
-from yolov12.ultralytics.utils import (
+from ultralytics.cfg import TASK2DATA, get_cfg
+from ultralytics.data import build_dataloader
+from ultralytics.data.dataset import YOLODataset
+from ultralytics.data.utils import check_cls_dataset, check_det_dataset
+from ultralytics.nn.autobackend import check_class_names, default_class_names
+from ultralytics.nn.modules import C2f, Classify, Detect, RTDETRDecoder
+from ultralytics.nn.tasks import DetectionModel, SegmentationModel, WorldModel
+from ultralytics.utils import (
     ARM64,
     DEFAULT_CFG,
     IS_JETSON,
@@ -91,17 +91,17 @@ from yolov12.ultralytics.utils import (
     get_default_args,
     yaml_save,
 )
-from yolov12.ultralytics.utils.checks import (
+from ultralytics.utils.checks import (
     check_imgsz,
     check_is_path_safe,
     check_requirements,
     check_version,
     is_sudo_available,
 )
-from yolov12.ultralytics.utils.downloads import attempt_download_asset, get_github_assets, safe_download
-from yolov12.ultralytics.utils.files import file_size, spaces_in_path
-from yolov12.ultralytics.utils.ops import Profile
-from yolov12.ultralytics.utils.torch_utils import TORCH_1_13, get_latest_opset, select_device
+from ultralytics.utils.downloads import attempt_download_asset, get_github_assets, safe_download
+from ultralytics.utils.files import file_size, spaces_in_path
+from ultralytics.utils.ops import Profile
+from ultralytics.utils.torch_utils import TORCH_1_13, get_latest_opset, select_device
 
 
 def export_formats():
@@ -317,7 +317,7 @@ class Exporter:
         model = model.fuse()
 
         if imx:
-            from yolov12.ultralytics.utils.torch_utils import FXModel
+            from ultralytics.utils.torch_utils import FXModel
 
             model = FXModel(model)
         for m in model.modules():
@@ -332,7 +332,7 @@ class Exporter:
                 # EdgeTPU does not support FlexSplitV while split provides cleaner ONNX graph
                 m.forward = m.forward_split
             if isinstance(m, Detect) and imx:
-                from yolov12.ultralytics.utils.tal import make_anchors
+                from ultralytics.utils.tal import make_anchors
 
                 m.anchors, m.strides = (
                     x.transpose(0, 1)

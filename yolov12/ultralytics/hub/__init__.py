@@ -2,11 +2,11 @@
 
 import requests
 
-from yolov12.ultralytics.data.utils import HUBDatasetStats
-from yolov12.ultralytics.hub.auth import Auth
-from yolov12.ultralytics.hub.session import HUBTrainingSession
-from yolov12.ultralytics.hub.utils import HUB_API_ROOT, HUB_WEB_ROOT, PREFIX, events
-from yolov12.ultralytics.utils import LOGGER, SETTINGS, checks
+from ultralytics.data.utils import HUBDatasetStats
+from ultralytics.hub.auth import Auth
+from ultralytics.hub.session import HUBTrainingSession
+from ultralytics.hub.utils import HUB_API_ROOT, HUB_WEB_ROOT, PREFIX, events
+from ultralytics.utils import LOGGER, SETTINGS, checks
 
 __all__ = (
     "PREFIX",
@@ -93,7 +93,7 @@ def reset_model(model_id=""):
 
 def export_fmts_hub():
     """Returns a list of HUB-supported export formats."""
-    from yolov12.ultralytics.engine.exporter import export_formats
+    from ultralytics.engine.exporter import export_formats
 
     return list(export_formats()["Argument"][1:]) + ["ultralytics_tflite", "ultralytics_coreml"]
 
@@ -133,7 +133,7 @@ def check_dataset(path: str, task: str) -> None:
         Download *.zip files from https://github.com/ultralytics/hub/tree/main/example_datasets
             i.e. https://github.com/ultralytics/hub/raw/main/example_datasets/coco8.zip for coco8.zip.
         ```python
-        from yolov12.ultralytics.hub import check_dataset
+        from ultralytics.hub import check_dataset
 
         check_dataset("path/to/coco8.zip", task="detect")  # detect dataset
         check_dataset("path/to/coco8-seg.zip", task="segment")  # segment dataset

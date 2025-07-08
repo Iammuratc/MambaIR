@@ -12,11 +12,11 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from yolov12.ultralytics.data.augment import LetterBox
-from yolov12.ultralytics.utils import LOGGER, SimpleClass, ops
-from yolov12.ultralytics.utils.checks import check_requirements
-from yolov12.ultralytics.utils.plotting import Annotator, colors, save_one_box
-from yolov12.ultralytics.utils.torch_utils import smart_inference_mode
+from ultralytics.data.augment import LetterBox
+from ultralytics.utils import LOGGER, SimpleClass, ops
+from ultralytics.utils.checks import check_requirements
+from ultralytics.utils.plotting import Annotator, colors, save_one_box
+from ultralytics.utils.torch_utils import smart_inference_mode
 
 
 class BaseTensor(SimpleClass):
@@ -122,7 +122,7 @@ class BaseTensor(SimpleClass):
 
         Examples:
             >>> import torch
-            >>> from yolov12.ultralytics.engine.results import BaseTensor
+            >>> from ultralytics.engine.results import BaseTensor
             >>> data = torch.tensor([[1, 2, 3], [4, 5, 6]])
             >>> base_tensor = BaseTensor(data, orig_shape=(720, 1280))
             >>> gpu_tensor = base_tensor.cuda()
@@ -1190,7 +1190,7 @@ class Masks(BaseTensor):
 
         Examples:
             >>> import torch
-            >>> from yolov12.ultralytics.engine.results import Masks
+            >>> from ultralytics.engine.results import Masks
             >>> masks = torch.rand(10, 160, 160)  # 10 masks of 160x160 resolution
             >>> orig_shape = (720, 1280)  # Original image shape
             >>> mask_obj = Masks(masks, orig_shape)
@@ -1274,7 +1274,7 @@ class Keypoints(BaseTensor):
 
     Examples:
         >>> import torch
-        >>> from yolov12.ultralytics.engine.results import Keypoints
+        >>> from ultralytics.engine.results import Keypoints
         >>> keypoints_data = torch.rand(1, 17, 3)  # 1 detection, 17 keypoints, (x, y, conf)
         >>> orig_shape = (480, 640)  # Original image shape (height, width)
         >>> keypoints = Keypoints(keypoints_data, orig_shape)

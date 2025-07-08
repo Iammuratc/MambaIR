@@ -10,8 +10,8 @@ import pytest
 
 from tests import MODEL, SOURCE, TMP
 from ultralytics import YOLO, download
-from yolov12.ultralytics.utils import DATASETS_DIR, SETTINGS
-from yolov12.ultralytics.utils.checks import check_requirements
+from ultralytics.utils import DATASETS_DIR, SETTINGS
+from ultralytics.utils.checks import check_requirements
 
 
 @pytest.mark.skipif(not check_requirements("ray", install=False), reason="ray[tune] not installed")
@@ -121,9 +121,9 @@ def test_triton():
 @pytest.mark.skipif(not check_requirements("pycocotools", install=False), reason="pycocotools not installed")
 def test_pycocotools():
     """Validate YOLO model predictions on COCO dataset using pycocotools."""
-    from yolov12.ultralytics.models.yolo.detect import DetectionValidator
-    from yolov12.ultralytics.models.yolo.pose import PoseValidator
-    from yolov12.ultralytics.models.yolo.segment import SegmentationValidator
+    from ultralytics.models.yolo.detect import DetectionValidator
+    from ultralytics.models.yolo.pose import PoseValidator
+    from ultralytics.models.yolo.segment import SegmentationValidator
 
     # Download annotations after each dataset downloads first
     url = "https://github.com/ultralytics/assets/releases/download/v0.0.0/"

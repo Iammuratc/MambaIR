@@ -10,8 +10,8 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from yolov12.ultralytics.utils import LOGGER
-from yolov12.ultralytics.utils.metrics import batch_probiou
+from ultralytics.utils import LOGGER
+from ultralytics.utils.metrics import batch_probiou
 
 
 class Profile(contextlib.ContextDecorator):
@@ -20,7 +20,7 @@ class Profile(contextlib.ContextDecorator):
 
     Example:
         ```python
-        from yolov12.ultralytics.utils.ops import Profile
+        from ultralytics.utils.ops import Profile
 
         with Profile(device=device) as dt:
             pass  # slow operation here
@@ -801,7 +801,7 @@ def masks2segments(masks, strategy="all"):
     Returns:
         segments (List): list of segment masks
     """
-    from yolov12.ultralytics.data.converter import merge_multi_segment
+    from ultralytics.data.converter import merge_multi_segment
 
     segments = []
     for x in masks.int().cpu().numpy().astype("uint8"):

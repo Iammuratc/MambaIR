@@ -3,10 +3,10 @@
 import torch
 from PIL import Image
 
-from yolov12.ultralytics.models.yolo.segment import SegmentationPredictor
-from yolov12.ultralytics.utils import DEFAULT_CFG, checks
-from yolov12.ultralytics.utils.metrics import box_iou
-from yolov12.ultralytics.utils.ops import scale_masks
+from ultralytics.models.yolo.segment import SegmentationPredictor
+from ultralytics.utils import DEFAULT_CFG, checks
+from ultralytics.utils.metrics import box_iou
+from ultralytics.utils.ops import scale_masks
 
 from .utils import adjust_bboxes_to_image_border
 

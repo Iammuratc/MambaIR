@@ -25,9 +25,9 @@ import time
 import numpy as np
 import torch
 
-from yolov12.ultralytics.cfg import get_cfg, get_save_dir
-from yolov12.ultralytics.utils import DEFAULT_CFG, LOGGER, callbacks, colorstr, remove_colorstr, yaml_print, yaml_save
-from yolov12.ultralytics.utils.plotting import plot_tune_results
+from ultralytics.cfg import get_cfg, get_save_dir
+from ultralytics.utils import DEFAULT_CFG, LOGGER, callbacks, colorstr, remove_colorstr, yaml_print, yaml_save
+from ultralytics.utils.plotting import plot_tune_results
 
 
 class Tuner:

@@ -2,9 +2,9 @@
 
 import torch
 
-from yolov12.ultralytics.engine.results import Results
-from yolov12.ultralytics.models.yolo.detect.predict import DetectionPredictor
-from yolov12.ultralytics.utils import DEFAULT_CFG, ops
+from ultralytics.engine.results import Results
+from ultralytics.models.yolo.detect.predict import DetectionPredictor
+from ultralytics.utils import DEFAULT_CFG, ops
 
 
 class OBBPredictor(DetectionPredictor):
@@ -13,8 +13,8 @@ class OBBPredictor(DetectionPredictor):
 
     Example:
         ```python
-        from yolov12.ultralytics.utils import ASSETS
-        from yolov12.ultralytics.models.yolo.obb import OBBPredictor
+        from ultralytics.utils import ASSETS
+        from ultralytics.models.yolo.obb import OBBPredictor
 
         args = dict(model="yolov8n-obb.pt", source=ASSETS)
         predictor = OBBPredictor(overrides=args)

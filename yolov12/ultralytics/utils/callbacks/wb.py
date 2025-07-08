@@ -1,7 +1,7 @@
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
-from yolov12.ultralytics.utils import SETTINGS, TESTS_RUNNING
-from yolov12.ultralytics.utils.torch_utils import model_info_for_loggers
+from ultralytics.utils import SETTINGS, TESTS_RUNNING
+from ultralytics.utils.torch_utils import model_info_for_loggers
 
 try:
     assert not TESTS_RUNNING  # do not log pytest

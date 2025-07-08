@@ -13,9 +13,9 @@ import torch
 import torch.nn as nn
 from PIL import Image
 
-from yolov12.ultralytics.utils import ARM64, IS_JETSON, IS_RASPBERRYPI, LINUX, LOGGER, ROOT, yaml_load
-from yolov12.ultralytics.utils.checks import check_requirements, check_suffix, check_version, check_yaml
-from yolov12.ultralytics.utils.downloads import attempt_download_asset, is_url
+from ultralytics.utils import ARM64, IS_JETSON, IS_RASPBERRYPI, LINUX, LOGGER, ROOT, yaml_load
+from ultralytics.utils.checks import check_requirements, check_suffix, check_version, check_yaml
+from ultralytics.utils.downloads import attempt_download_asset, is_url
 
 
 def check_class_names(names):
@@ -156,7 +156,7 @@ class AutoBackend(nn.Module):
 
         # PyTorch
         elif pt:
-            from yolov12.ultralytics.nn.tasks import attempt_load_weights
+            from ultralytics.nn.tasks import attempt_load_weights
 
             model = attempt_load_weights(
                 weights if isinstance(weights, list) else w, device=device, inplace=True, fuse=fuse
@@ -350,7 +350,7 @@ class AutoBackend(nn.Module):
             LOGGER.info(f"Loading {w} for TensorFlow GraphDef inference...")
             import tensorflow as tf
 
-            from yolov12.ultralytics.engine.exporter import gd_outputs
+            from ultralytics.engine.exporter import gd_outputs
 
             def wrap_frozen_graph(gd, inputs, outputs):
                 """Wrap frozen graphs for deployment."""
@@ -456,14 +456,14 @@ class AutoBackend(nn.Module):
         # NVIDIA Triton Inference Server
         elif triton:
             check_requirements("tritonclient[all]")
-            from yolov12.ultralytics.utils.triton import TritonRemoteModel
+            from ultralytics.utils.triton import TritonRemoteModel
 
             model = TritonRemoteModel(w)
             metadata = model.metadata
 
         # Any other format (unsupported)
         else:
-            from yolov12.ultralytics.engine.exporter import export_formats
+            from ultralytics.engine.exporter import export_formats
 
             raise TypeError(
                 f"model='{w}' is not a supported model format. Ultralytics supports: {export_formats()['Format']}\n"
@@ -613,7 +613,7 @@ class AutoBackend(nn.Module):
                     f"'nms=False', but 'model={w}' has an NMS pipeline created by an 'nms=True' export."
                 )
                 # TODO: CoreML NMS inference handling
-                # from yolov12.ultralytics.utils.ops import xywh2xyxy
+                # from ultralytics.utils.ops import xywh2xyxy
                 # box = xywh2xyxy(y['coordinates'] * [[w, h, w, h]])  # xyxy pixels
                 # conf, cls = y['confidence'].max(1), y['confidence'].argmax(1).astype(np.float32)
                 # y = np.concatenate((box, conf.reshape(-1, 1), cls.reshape(-1, 1)), 1)
@@ -743,7 +743,7 @@ class AutoBackend(nn.Module):
             >>> model = AutoBackend(weights="path/to/model.onnx")
             >>> model_type = model._model_type()  # returns "onnx"
         """
-        from yolov12.ultralytics.engine.exporter import export_formats
+        from ultralytics.engine.exporter import export_formats
 
         sf = export_formats()["Suffix"]  # export suffixes
         if not is_url(p) and not isinstance(p, str):

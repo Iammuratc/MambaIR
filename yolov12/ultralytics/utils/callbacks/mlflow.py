@@ -21,7 +21,7 @@ Commands:
         ps aux | grep 'mlflow' | grep -v 'grep' | awk '{print $2}' | xargs kill -9
 """
 
-from yolov12.ultralytics.utils import LOGGER, RUNS_DIR, SETTINGS, TESTS_RUNNING, colorstr
+from ultralytics.utils import LOGGER, RUNS_DIR, SETTINGS, TESTS_RUNNING, colorstr
 
 try:
     import os

@@ -7,8 +7,8 @@ from copy import deepcopy
 import numpy as np
 import torch
 
-from yolov12.ultralytics.utils import DEFAULT_CFG, LOGGER, colorstr
-from yolov12.ultralytics.utils.torch_utils import autocast, profile
+from ultralytics.utils import DEFAULT_CFG, LOGGER, colorstr
+from ultralytics.utils.torch_utils import autocast, profile
 
 
 def check_train_batch_size(model, imgsz=640, amp=True, batch=-1, max_num_obj=1):
