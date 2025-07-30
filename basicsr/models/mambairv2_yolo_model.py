@@ -27,6 +27,7 @@ class MambaIRv2YoloModel(SRModel):
     def __init__(self, opt):
         super(SRModel, self).__init__(opt)
 
+        self.opt = opt
         # define network
         self.net_g = build_network(opt['network_g'])
         self.net_g = self.model_to_device(self.net_g)
@@ -41,7 +42,9 @@ class MambaIRv2YoloModel(SRModel):
         # Add yolo model and wrap in nn.Sequential
         self.yolo_model = YOLO('yolov12n.yaml')
         self.yolo_model = self.yolo_model.to(self.device)
-        self.yolo_model.model.args['box'] = 7.5
+        self.yolo_model.model.args['box'] = opt['yolo_losses']['box_gain']
+        self.yolo_model.model.args['cls'] = opt['yolo_losses']['cls_gain']
+        self.yolo_model.model.args['dfl'] = opt['yolo_losses']['dlf_gain']
         self.yolo_model.model.args = IterableSimpleNamespace(**self.yolo_model.model.args)
         self.criterion = v8DetectionLoss(self.yolo_model.model)
 
@@ -188,8 +191,9 @@ class MambaIRv2YoloModel(SRModel):
                 l_total += l_style
                 loss_dict['l_style'] = l_style
 
+        l_total *= self.opt['sr_weight']
         # Additional loss for YOLO model
-        l_total += yolo_loss
+        l_total += self.opt['yolo_weight'] * yolo_loss
 
         l_total.backward()
         self.optimizer_g.step()
@@ -312,7 +316,7 @@ class MambaIRv2YoloModel(SRModel):
 
         # Save Yolo model
 
-        save_filename = f'yolo_{current_iter}.pth'
+        save_filename = f'yolo_{current_iter}.pt'
         yolo_save_path = os.path.join(self.opt['path']['models'], save_filename)
 
         from copy import deepcopy

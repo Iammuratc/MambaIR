@@ -1,7 +1,7 @@
 # general settings for image SR training
-name: MambaIRv2_SR_x4
+name: MambaIRv2Yolo_Xview_x2
 model_type: MambaIRv2YoloModel
-scale: 4
+scale: 2
 num_gpu: 2
 manual_seed: 10
 
@@ -21,11 +21,11 @@ datasets:
     name: DF2K
     type: PairedImageLabelDataset
     dataroot_gt:
-      - /mnt/2tb-1/image_enhancement/experiments/MambaIR_Rareplanes_pretrained/DOTA_split/images/train_SR_pad/output_cropped_hr
+      - /mnt/2tb-2/satellitepy/data/xview/sets_gsd_30/train/images/
     dataroot_lq:
-      - /mnt/2tb-1/image_enhancement/experiments/MambaIR_Rareplanes_pretrained/DOTA_split/images/train_SR_pad/output_downscaled_lr
+      - /mnt/2tb-2/satellitepy/data/xview/sets_gsd_60/train/images/
     dataroot_label:
-      - /mnt/2tb-1/image_enhancement/experiments/MambaIR_Rareplanes_pretrained/DOTA_split/labels/train
+      - /mnt/2tb-2/satellitepy/data/xview/sets_gsd_30/train/labels/
     filename_tmpl: '{}'
     io_backend:
       type: disk
@@ -44,9 +44,9 @@ datasets:
   val:
     name: Set14
     type: PairedImageLabelDataset
-    dataroot_gt: /mnt/2tb-1/image_enhancement/experiments/MambaIR_Rareplanes_pretrained/DOTA_split/images/val_SR_pad/output_cropped_hr
-    dataroot_lq: /mnt/2tb-1/image_enhancement/experiments/MambaIR_Rareplanes_pretrained/DOTA_split/images/val_SR_pad/output_downscaled_lr
-    dataroot_label: /mnt/2tb-1/image_enhancement/experiments/MambaIR_Rareplanes_pretrained/DOTA_split/labels/val
+    dataroot_gt: /mnt/2tb-2/satellitepy/data/xview/sets_gsd_30/test/images/
+    dataroot_lq: /mnt/2tb-2/satellitepy/data/xview/sets_gsd_60/test/images/
+    dataroot_label: /mnt/2tb-2/satellitepy/data/xview/sets_gsd_30/test/labels/
     filename_tmpl: '{}'
     io_backend:
       type: disk
@@ -55,7 +55,7 @@ datasets:
 # network structures
 network_g:
   type: MambaIRv2
-  upscale: 4
+  upscale: 2
   in_chans: 3
   img_size: 64
   img_range: 1.
@@ -78,7 +78,7 @@ path:
   pretrain_network_g: /home/louis/workspace/MambaIR/pretrained/mambairv2_classicSR_Base_x4.pth
   strict_load_g: false
   resume_state: ~
-  experiments_root: /mnt/2tb-2/experiments_mambair-yolo
+  experiments_root: /mnt/2tb-2/experiments_mambair-yolo_xview
 
 
 # training settings
@@ -96,8 +96,8 @@ train:
     milestones: [ 125000, 200000, 225000, 237500 ]
     gamma: 0.5
 
-  # total_iter: 500000
-  total_iter: 6000
+  total_iter: 500000
+#  total_iter: 6000
   warmup_iter: -1  # no warm up
 
   # losses

@@ -9,8 +9,8 @@ datasets:
   test_1:  # the 1st test dataset
     name: Rareplanes
     type: PairedImageDataset
-    dataroot_gt: /mnt/2tb-0/satellitepy/experiments/Rareplanes_crops/PS-RGB_tiled/test/gt
-    dataroot_lq: /mnt/2tb-0/satellitepy/experiments/Rareplanes_crops/PS-RGB_tiled/test/lq
+    dataroot_gt: /mnt/2tb-1/image_enhancement/experiments/MambaIR_Rareplanes_pretrained/DOTA_split/images/val_SR_pad/output_cropped_hr
+    dataroot_lq: /mnt/2tb-1/image_enhancement/experiments/MambaIR_Rareplanes_pretrained/DOTA_split/images/val_SR_pad/output_downscaled_lr
     filename_tmpl: '{}'
     io_backend:
       type: disk
@@ -37,12 +37,12 @@ network_g:
 
 # path
 path:
-  pretrain_network_g: /home/louis/workspace/MambaIR/pretrained/mambairv2_classicSR_Base_x4.pth
+  pretrain_network_g: /home/louis/workspace/MambaIR/experiments/MambaIRv2_SR_x4/models/net_g_latest.pth
   strict_load_g: true
 
 # validation settings
 val:
-  save_img: false
+  save_img: true
   suffix: ~  # add suffix to saved images, if None, use exp name
 
   metrics:
