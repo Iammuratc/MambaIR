@@ -5,7 +5,7 @@ from torchvision.transforms.functional import normalize
 
 from basicsr.data.data_util import paired_paths_from_folder, paired_paths_from_lmdb, paired_paths_from_meta_info_file, \
      paired_label_paths_from_folder
-from basicsr.data.transforms import augment, paired_random_crop
+from basicsr.data.transforms import augment, paired_random_crop, augment_imgaug
 from basicsr.utils import FileClient, imfrombytes, img2tensor
 from basicsr.utils.matlab_functions import rgb2ycbcr
 from basicsr.utils.registry import DATASET_REGISTRY
@@ -80,54 +80,15 @@ class PairedImageLabelDataset(data.Dataset):
         scale = self.opt['scale']
 
         # Load gt and lq images. Dimension order: HWC; channel order: BGR;
+        # image range: [0, 1], float32., H W 3
+        gt_path = self.paths[index]['gt_path']
+        img_bytes = self.file_client.get(gt_path, 'gt')
+        img_gt = imfrombytes(img_bytes, float32=True)
+        lq_path = self.paths[index]['lq_path']
+        img_bytes = self.file_client.get(lq_path, 'lq')
+        img_lq = imfrombytes(img_bytes, float32=True)
 
-        if self.task == 'CAR':      # Unused case??
-            # image range: [0, 255], int., H W 1
-
-            gt_path = self.paths[index]['gt_path']
-            img_bytes = self.file_client.get(gt_path, 'gt')
-            img_gt = imfrombytes(img_bytes, flag='grayscale', float32=False)
-            lq_path = self.paths[index]['lq_path']
-            img_bytes = self.file_client.get(lq_path, 'lq')
-            img_lq = imfrombytes(img_bytes, flag='grayscale', float32=False)
-            img_gt = np.expand_dims(img_gt, axis=2).astype(np.float32) / 255.
-            img_lq = np.expand_dims(img_lq, axis=2).astype(np.float32) / 255.
-    
-        elif self.task == 'denoising_gray': # Matlab + OpenCV version
-            gt_path = self.paths[index]['gt_path']
-            lq_path = gt_path
-            img_bytes = self.file_client.get(gt_path, 'gt')
-            # OpenCV version, following "Deep Convolutional Dictionary Learning for Image Denoising"
-            img_gt = imfrombytes(img_bytes, flag='grayscale', float32=True)
-            # # Matlab version (using this version may have 0.6dB improvement, which is unfair for comparison)
-            # img_gt = imfrombytes(img_bytes, flag='unchanged', float32=True)
-            # if img_gt.ndim != 2:
-            #     img_gt = rgb2ycbcr(cv2.cvtColor(img_gt, cv2.COLOR_BGR2RGB), y_only=True)
-            if self.opt['phase'] != 'train':
-                np.random.seed(seed=0)
-            img_lq = img_gt + np.random.normal(0, self.noise/255., img_gt.shape)
-            img_gt = np.expand_dims(img_gt, axis=2)
-            img_lq = np.expand_dims(img_lq, axis=2)
-
-        elif self.task == 'denoising_color':
-            gt_path = self.paths[index]['gt_path']
-            lq_path = gt_path
-            img_bytes = self.file_client.get(gt_path, 'gt')
-            img_gt = imfrombytes(img_bytes, float32=True)
-            if self.opt['phase'] != 'train':
-                np.random.seed(seed=0)
-            img_lq = img_gt + np.random.normal(0, self.noise/255., img_gt.shape)
-
-        else:   # Only relevant task for us
-            # image range: [0, 1], float32., H W 3
-            gt_path = self.paths[index]['gt_path']
-            img_bytes = self.file_client.get(gt_path, 'gt')
-            img_gt = imfrombytes(img_bytes, float32=True)
-            lq_path = self.paths[index]['lq_path']
-            img_bytes = self.file_client.get(lq_path, 'lq')
-            img_lq = imfrombytes(img_bytes, float32=True)
-
-            label_path = str(Path(self.label_folder[0]) / Path(gt_path).name.split('.')[0]) + '.txt'
+        label_path = str(Path(self.label_folder[0]) / Path(gt_path).name.split('.')[0]) + '.txt'
 
 
         prefix = '\x1b[34m\x1b[1mtrain: \x1b[0m'
@@ -155,7 +116,8 @@ class PairedImageLabelDataset(data.Dataset):
             # random crop
             img_gt, img_lq, label = paired_random_crop(img_gt, img_lq, gt_size, scale, gt_path, label)
             # flip, rotation
-            # img_gt, img_lq = augment([img_gt, img_lq], self.opt['use_hflip'], self.opt['use_rot'])
+            ## Ground truth must be the first one in the list
+            img_gt, img_lq, label = augment_imgaug(imgs=[img_gt, img_lq], opt=self.opt['augmentations'], label=label)
 
         # color space transform
         if 'color' in self.opt and self.opt['color'] == 'y':
@@ -174,7 +136,7 @@ class PairedImageLabelDataset(data.Dataset):
         if self.mean is not None or self.std is not None:
             normalize(img_lq, self.mean, self.std, inplace=True)
             normalize(img_gt, self.mean, self.std, inplace=True)
-
+        
         return {'lq': img_lq, 'gt': img_gt, 'label': label, 'lq_path': lq_path, 'gt_path': gt_path, 'label_path': label_path}
 
     def __len__(self):
