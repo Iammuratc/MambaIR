@@ -10,9 +10,9 @@ yolo_weight: 1
 sr_weight: 1
 
 yolo_losses:
-  box_gain: 1 #(7.5)
-  dlf_gain: 1 #(1.5)
-  cls_gain: 1 #(0.5)
+  box_gain: 7.5 #(7.5)
+  dlf_gain: 1.5 #(1.5)
+  cls_gain: 0.5 #(0.5)
 
 # dataset and data loader settings
 datasets:
