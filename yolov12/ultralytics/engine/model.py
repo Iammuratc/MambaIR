@@ -28,7 +28,7 @@ from ultralytics.utils import (
 )
 
 
-class Model(nn.Module, PyTorchModelHubMixin, repo_url="https://github.com/ultralytics/ultralytics", pipeline_tag="object-detection", license="agpl-3.0"):
+class Model(nn.Module):
     """
     A base class for implementing YOLO models, unifying APIs across different model types.
 
