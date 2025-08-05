@@ -206,6 +206,8 @@ def augment_imgaug(imgs, opt, label=None):
             # Rotate by -45 to +45 degrees
             # iaa.Rotate((-opt['rotate'], opt['rotate'])),
             
+            # Rotate 90 degrees
+            iaa.Rot90((1,3)),
             # Add per-channel noise
             iaa.Add((-opt['noise_per_channel'], opt['noise_per_channel']), per_channel=True),
             
@@ -220,8 +222,12 @@ def augment_imgaug(imgs, opt, label=None):
         img_lq_aug = aug(image=imgs[1])
         # images_aug, bbs_aug = aug(images=imgs, bounding_boxes=bbs)
         bbs_aug = bbs_aug.clip_out_of_image()
-        assert len(label['bboxes']) == len(bbs_aug.bounding_boxes),  print("Number of bounding boxes should remain the same after augmentation.")
-        label['bboxes'] = [[(bb.x1 + bb.x2) / (2*w), (bb.y1 + bb.y2) / (2*h), (bb.x2 - bb.x1)/w, (bb.y2 - bb.y1)/h] for bb in bbs_aug.bounding_boxes ]
+        if len(label['bboxes']) != len(bbs_aug.bounding_boxes):
+            print(f"Number of bounding boxes (={len(label['bboxes'])}) should remain the same after augmentation (={len(bbs_aug.bounding_boxes)}).")
+            print("Returning original images before augmentations.")
+            img_gt_aug, img_lq_aug = imgs[0], imgs[1]
+        else:
+            label['bboxes'] = [[(bb.x1 + bb.x2) / (2*w), (bb.y1 + bb.y2) / (2*h), (bb.x2 - bb.x1)/w, (bb.y2 - bb.y1)/h] for bb in bbs_aug.bounding_boxes ]
 
         return img_gt_aug, img_lq_aug, label
         
