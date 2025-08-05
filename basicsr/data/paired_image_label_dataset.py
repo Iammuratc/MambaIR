@@ -90,7 +90,6 @@ class PairedImageLabelDataset(data.Dataset):
 
         label_path = str(Path(self.label_folder[0]) / Path(gt_path).name.split('.')[0]) + '.txt'
 
-
         prefix = '\x1b[34m\x1b[1mtrain: \x1b[0m'
         keypoint = False
         num_cls = 4
