@@ -207,7 +207,7 @@ def augment_imgaug(imgs, opt, label=None):
             # iaa.Rotate((-opt['rotate'], opt['rotate'])),
             
             # Rotate 90 degrees
-            iaa.Rot90((1,3)),
+            iaa.Rot90((opt['rot90'][0],opt['rot90'][1])),
             # Add per-channel noise
             iaa.Add((-opt['noise_per_channel'], opt['noise_per_channel']), per_channel=True),
             
