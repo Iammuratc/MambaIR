@@ -21,11 +21,11 @@ datasets:
     name: DF2K
     type: PairedImageLabelDataset
     dataroot_gt:
-      - /mnt/2tb-2/satellitepy/data/xview/sets_gsd_30/train/images/
+      - /mnt/2tb-2/satellitepy/data/xview/gt_ps_384_x2_SR/sets_gsd_30/train/images/
     dataroot_lq:
-      - /mnt/2tb-2/satellitepy/data/xview/sets_gsd_60/train/images/
+      - /mnt/2tb-2/satellitepy/data/xview/gt_ps_384_x2_SR/sets_gsd_60/train/images/
     dataroot_label:
-      - /mnt/2tb-2/satellitepy/data/xview/sets_gsd_30/train/labels_yolo/
+      - /mnt/2tb-2/satellitepy/data/xview/gt_ps_384_x2_SR/sets_gsd_30/train/labels_yolo/
     filename_tmpl: '{}'
     io_backend:
       type: disk
@@ -38,6 +38,7 @@ datasets:
       fliplr: 0.8 # Probability
       flipud: 0.2 # Probability
       noise_per_channel: 0.1 # Add a value (0,1) to all pixels in a Normalized image.
+      rot90: [0,3] # Rotate 90 degrees, 0 for no rotation, 1 for 90 degrees, 2 for 180 degrees, etc.
 
 
     # data loader
@@ -50,9 +51,9 @@ datasets:
   val:
     name: Set14
     type: PairedImageLabelDataset
-    dataroot_gt: /mnt/2tb-2/satellitepy/data/xview/sets_gsd_30/test/images/
-    dataroot_lq: /mnt/2tb-2/satellitepy/data/xview/sets_gsd_60/test/images/
-    dataroot_label: /mnt/2tb-2/satellitepy/data/xview/sets_gsd_30/test/labels_yolo/
+    dataroot_gt: /mnt/2tb-2/satellitepy/data/xview/gt_ps_384_x2_SR/sets_gsd_30/test/images/
+    dataroot_lq: /mnt/2tb-2/satellitepy/data/xview/gt_ps_384_x2_SR/sets_gsd_60/test/images/
+    dataroot_label: /mnt/2tb-2/satellitepy/data/xview/gt_ps_384_x2_SR/sets_gsd_30/test/labels_yolo/
     filename_tmpl: '{}'
     io_backend:
       type: disk
