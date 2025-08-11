@@ -15,7 +15,15 @@ class BaseModel():
 
     def __init__(self, opt):
         self.opt = opt
-        self.device = torch.device('cuda' if opt['num_gpu'] != 0 else 'cpu')
+        if opt.get('dist', False):  # distributed training
+            local_rank = int(os.environ.get("LOCAL_RANK", 0))
+            torch.cuda.set_device(local_rank)
+            self.device = torch.device(f"cuda:{local_rank}")
+            print(f"Set device to {self.device} with local rank {local_rank} and rank {os.environ.get('RANK')}.")
+        elif opt.get('num_gpu', 0) > 0:
+            self.device = torch.device('cuda')
+        else:
+            self.device = torch.device('cpu')
         self.is_train = opt['is_train']
         self.schedulers = []
         self.optimizers = []
@@ -95,9 +103,10 @@ class BaseModel():
         if self.opt['dist']:
             find_unused_parameters = self.opt.get('find_unused_parameters', False)
             net = DistributedDataParallel(
-                net, device_ids=[torch.cuda.current_device()], find_unused_parameters=find_unused_parameters)
+                net, device_ids=[self.device.index], find_unused_parameters=find_unused_parameters)
         elif self.opt['num_gpu'] > 1:
             net = DataParallel(net)
+        print(f"[Rank {os.environ.get('RANK')}] on device {self.device}")
         return net
 
     def get_optimizer(self, optim_type, params, lr, **kwargs):

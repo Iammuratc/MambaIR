@@ -226,11 +226,7 @@ class MambaIRv2YoloModel(SRModel):
     def setup_optimizers(self):
         train_opt = self.opt['train']
         optim_params = []
-        for k, v in self.net_g.named_parameters():
-            if v.requires_grad:
-                optim_params.append(v)
-
-        for k, v in self.yolo_model.named_parameters():
+        for k, v in self.combined_net.named_parameters():
             if v.requires_grad:
                 optim_params.append(v)
 
