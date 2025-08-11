@@ -205,6 +205,18 @@ class v8DetectionLoss:
 
     def __call__(self, preds, batch):
         """Calculate the sum of the loss for box, cls and dfl multiplied by batch size."""
+
+        if batch["cls"].numel() == 0 or batch["bboxes"].numel() == 0:
+            feats = preds[1] if isinstance(preds, tuple) else preds
+            pred_scores = torch.cat([xi.view(feats[0].shape[0], self.no, -1) for xi in feats], 2).split(
+                (self.reg_max * 4, self.nc), 1
+            )[1].permute(0, 2, 1).contiguous()
+
+            # Binary classification against all negatives (no targets)
+            loss_cls = self.bce(pred_scores, torch.zeros_like(pred_scores)).sum()
+            loss_cls *= self.hyp.empty_loss
+            return loss_cls, torch.tensor([0.0, loss_cls.item(), 0.0], device=self.device)
+
         loss = torch.zeros(3, device=self.device)  # box, cls, dfl
         feats = preds[1] if isinstance(preds, tuple) else preds
         pred_distri, pred_scores = torch.cat([xi.view(feats[0].shape[0], self.no, -1) for xi in feats], 2).split(

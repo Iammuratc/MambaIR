@@ -57,6 +57,7 @@ class MambaIRv2YoloModel(SRModel):
         self.yolo_model.model.args['box'] = opt['yolo_losses']['box_gain']
         self.yolo_model.model.args['cls'] = opt['yolo_losses']['cls_gain']
         self.yolo_model.model.args['dfl'] = opt['yolo_losses']['dlf_gain']
+        self.yolo_model.model.args['empty_loss'] = opt['yolo_losses']['empty_loss']
         self.yolo_model.model.args = IterableSimpleNamespace(**self.yolo_model.model.args)
         self.criterion = v8DetectionLoss(self.yolo_model.model)
 
@@ -187,11 +188,7 @@ class MambaIRv2YoloModel(SRModel):
         }
 
         # Forward pass through the YOLO model
-        if len(self.label['cls']) > 0:
-            # preds = self.yolo_model.model.forward(self.output)
-            yolo_loss = self.criterion(preds, yolo_in)[0]
-        else:
-            yolo_loss = 0
+        yolo_loss = self.criterion(preds, yolo_in)[0]
 
         l_total = 0
         loss_dict = OrderedDict()
