@@ -223,8 +223,8 @@ def augment_imgaug(imgs, opt, label=None):
         # images_aug, bbs_aug = aug(images=imgs, bounding_boxes=bbs)
         bbs_aug = bbs_aug.clip_out_of_image()
         if len(label['bboxes']) != len(bbs_aug.bounding_boxes):
-            print(f"Number of bounding boxes (={len(label['bboxes'])}) should remain the same after augmentation (={len(bbs_aug.bounding_boxes)}).")
-            print("Returning original images before augmentations.")
+            # print(f"Number of bounding boxes (={len(label['bboxes'])}) should remain the same after augmentation (={len(bbs_aug.bounding_boxes)}).")
+            # print("Returning original images before augmentations.")
             img_gt_aug, img_lq_aug = imgs[0], imgs[1]
         else:
             label['bboxes'] = [[(bb.x1 + bb.x2) / (2*w), (bb.y1 + bb.y2) / (2*h), (bb.x2 - bb.x1)/w, (bb.y2 - bb.y1)/h] for bb in bbs_aug.bounding_boxes ]

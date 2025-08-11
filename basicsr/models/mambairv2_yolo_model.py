@@ -20,6 +20,18 @@ from yolov12.ultralytics.utils import IterableSimpleNamespace
 from os import path as osp
 
 
+class CombinedSRYoloNet(torch.nn.Module):
+    def __init__(self, sr_net, yolo_net):
+        super(CombinedSRYoloNet, self).__init__()
+        self.sr_net = sr_net
+        self.yolo_net = yolo_net
+
+    def forward(self, x):
+        sr_out = self.sr_net(x)
+        yolo_out = self.yolo_net(sr_out)
+        return sr_out, yolo_out
+
+
 @MODEL_REGISTRY.register()
 class MambaIRv2YoloModel(SRModel):
     """MambaIRv2 model for image restoration + object detection."""
@@ -30,7 +42,7 @@ class MambaIRv2YoloModel(SRModel):
         self.opt = opt
         # define network
         self.net_g = build_network(opt['network_g'])
-        self.net_g = self.model_to_device(self.net_g)
+        # self.net_g = self.model_to_device(self.net_g)
         self.print_network(self.net_g)
 
         # load pretrained models
@@ -41,12 +53,15 @@ class MambaIRv2YoloModel(SRModel):
 
         # Add yolo model and wrap in nn.Sequential
         self.yolo_model = YOLO('yolov12n.yaml')
-        self.yolo_model = self.yolo_model.to(self.device)
+        # self.yolo_model = self.yolo_model.to(self.device)
         self.yolo_model.model.args['box'] = opt['yolo_losses']['box_gain']
         self.yolo_model.model.args['cls'] = opt['yolo_losses']['cls_gain']
         self.yolo_model.model.args['dfl'] = opt['yolo_losses']['dlf_gain']
         self.yolo_model.model.args = IterableSimpleNamespace(**self.yolo_model.model.args)
         self.criterion = v8DetectionLoss(self.yolo_model.model)
+
+        self.combined_net = CombinedSRYoloNet(self.net_g, self.yolo_model.model)
+        self.combined_net = self.model_to_device(self.combined_net)
 
         if self.is_train:
             self.init_training_settings()
@@ -158,7 +173,11 @@ class MambaIRv2YoloModel(SRModel):
 
     def optimize_parameters(self, current_iter):
         self.optimizer_g.zero_grad()
-        self.output = self.net_g(self.lq)
+
+        sr_out, yolo_out = self.combined_net(self.lq)
+
+        self.output = sr_out
+        preds = yolo_out
 
         yolo_in = {
             'img': self.output.clone(),
@@ -169,7 +188,7 @@ class MambaIRv2YoloModel(SRModel):
 
         # Forward pass through the YOLO model
         if len(self.label['cls']) > 0:
-            preds = self.yolo_model.model.forward(self.output)
+            # preds = self.yolo_model.model.forward(self.output)
             yolo_loss = self.criterion(preds, yolo_in)[0]
         else:
             yolo_loss = 0
