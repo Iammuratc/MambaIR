@@ -291,7 +291,11 @@ class MambaIRv2YoloModel(SRModel):
                 pbar.update(1)
                 pbar.set_description(f'Test {img_name}')
 
-        os.symlink(self.opt['val']['dataroot_label'], osp.join(self.opt['path']['visualization'], dataset_name, 'labels'))
+        if save_img:
+            try:
+                os.symlink(self.opt['val']['dataroot_label'], osp.join(self.opt['path']['visualization'], 'labels'))
+            except Exception as e:
+                print(e)
 
         if use_pbar:
             pbar.close()
@@ -313,8 +317,8 @@ class MambaIRv2YoloModel(SRModel):
 
         print(f"SR model save path: {sr_save_path}")
 
-        if isinstance(self.net_g, (DataParallel, DistributedDataParallel)):
-            sr_net = self.net_g.module
+        if isinstance(self.combined_net.sr_net, (DataParallel, DistributedDataParallel)):
+            sr_net = self.combined_net.sr_net.module
         sr_net_state_dict = sr_net.state_dict()
         for key, param in sr_net_state_dict.items():
             if key.startswith('module.'):  # remove unnecessary 'module.'
@@ -335,21 +339,18 @@ class MambaIRv2YoloModel(SRModel):
         from datetime import datetime
 
         updates = {
-            "model": deepcopy(self.yolo_model).half() if isinstance(self.yolo_model, nn.Module) else self.yolo_model,
+            "model": deepcopy(self.combined_net.yolo_net).half() if isinstance(self.combined_net.yolo_net, nn.Module) else self.combined_net.yolo_net,
             "date": datetime.now().isoformat(),
             "version": __version__,
             "license": "AGPL-3.0 License (https://ultralytics.com/license)",
             "docs": "https://docs.ultralytics.com",
         }
-        torch.save({**self.yolo_model.ckpt, **updates}, yolo_save_path)
+        torch.save({**self.combined_net.yolo_net.ckpt, **updates}, yolo_save_path)
 
         print(f"Yolo model save path: {yolo_save_path}")
 
-
-
-
         if hasattr(self, 'net_g_ema'):
-            self.save_network([self.net_g, self.net_g_ema], 'net_g', current_iter, param_key=['params', 'params_ema'])
+            self.save_network([self.combined_net, self.net_g_ema], 'net_g', current_iter, param_key=['params', 'params_ema'])
         else:
-            self.save_network(self.net_g, 'net_g', current_iter)
+            self.save_network(self.combined_net, 'net_g', current_iter)
         self.save_training_state(epoch, current_iter)

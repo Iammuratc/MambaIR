@@ -215,7 +215,11 @@ class v8DetectionLoss:
             # Binary classification against all negatives (no targets)
             loss_cls = self.bce(pred_scores, torch.zeros_like(pred_scores)).sum()
             loss_cls *= self.hyp.empty_loss
-            return loss_cls, torch.tensor([0.0, loss_cls.item(), 0.0], device=self.device)
+            return loss_cls, torch.stack([
+                torch.zeros(1, device=self.device),
+                loss_cls.to(self.device).unsqueeze(0),  # 🔧 match shape
+                torch.zeros(1, device=self.device)
+            ], dim=0)
 
         loss = torch.zeros(3, device=self.device)  # box, cls, dfl
         feats = preds[1] if isinstance(preds, tuple) else preds

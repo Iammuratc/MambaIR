@@ -155,7 +155,7 @@ def verify_image_label(args, verify_img=True):
         else:
             nm = 1  # label missing
             lb = np.zeros((0, (5 + nkpt * ndim) if keypoints else 5), dtype=np.float32)
-            print("Label missing! " + lb_file)
+            print(f"Label missing! Label: {lb_file}")
         if keypoint:
             keypoints = lb[:, 5:].reshape(-1, nkpt, ndim)
             if ndim == 2:
