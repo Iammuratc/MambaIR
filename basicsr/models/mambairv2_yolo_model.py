@@ -192,6 +192,7 @@ class MambaIRv2YoloModel(SRModel):
 
         l_total = 0
         loss_dict = OrderedDict()
+        loss_dict['yolo_loss'] = yolo_loss
         # pixel loss
         if self.cri_pix:
             l_pix = self.cri_pix(self.output, self.gt)
@@ -317,8 +318,12 @@ class MambaIRv2YoloModel(SRModel):
 
         print(f"SR model save path: {sr_save_path}")
 
-        if isinstance(self.combined_net.sr_net, (DataParallel, DistributedDataParallel)):
-            sr_net = self.combined_net.sr_net.module
+        if isinstance(self.combined_net, (DataParallel, DistributedDataParallel)):
+            sr_net = self.combined_net.module.sr_net
+            yolo_net = self.combined_net.module.yolo_net
+        else:
+            sr_net = self.combined_net.sr_net
+            yolo_net = self.combined_net.yolo_net
         sr_net_state_dict = sr_net.state_dict()
         for key, param in sr_net_state_dict.items():
             if key.startswith('module.'):  # remove unnecessary 'module.'
@@ -339,13 +344,13 @@ class MambaIRv2YoloModel(SRModel):
         from datetime import datetime
 
         updates = {
-            "model": deepcopy(self.combined_net.yolo_net).half() if isinstance(self.combined_net.yolo_net, nn.Module) else self.combined_net.yolo_net,
+            "model": deepcopy(yolo_net).half() if isinstance(yolo_net, nn.Module) else yolo_net,
             "date": datetime.now().isoformat(),
             "version": __version__,
             "license": "AGPL-3.0 License (https://ultralytics.com/license)",
             "docs": "https://docs.ultralytics.com",
         }
-        torch.save({**self.combined_net.yolo_net.ckpt, **updates}, yolo_save_path)
+        torch.save({**yolo_net.ckpt, **updates}, yolo_save_path)
 
         print(f"Yolo model save path: {yolo_save_path}")
 
