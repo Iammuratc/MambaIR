@@ -28,7 +28,7 @@ class CombinedSRYoloNet(torch.nn.Module):
 
     def forward(self, x):
         sr_out = self.sr_net(x)
-        yolo_out = self.yolo_net(sr_out)
+        yolo_out = self.yolo_net.model(sr_out)
         return sr_out, yolo_out
 
 
@@ -61,7 +61,7 @@ class MambaIRv2YoloModel(SRModel):
         self.yolo_model.model.args = IterableSimpleNamespace(**self.yolo_model.model.args)
         self.criterion = v8DetectionLoss(self.yolo_model.model)
 
-        self.combined_net = CombinedSRYoloNet(self.net_g, self.yolo_model.model)
+        self.combined_net = CombinedSRYoloNet(self.net_g, self.yolo_model)
         self.combined_net = self.model_to_device(self.combined_net)
 
         if self.is_train:
