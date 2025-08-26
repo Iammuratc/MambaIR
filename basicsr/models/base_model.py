@@ -304,10 +304,21 @@ class BaseModel():
             load_net = load_net[param_key]
         logger.info(f'Loading {net.__class__.__name__} model from {load_path}, with param key: [{param_key}].')
         # remove unnecessary 'module.'
+        complain = False  # Only for remembering to fix :)
         for k, v in deepcopy(load_net).items():
             if k.startswith('module.'):
                 load_net[k[7:]] = v
                 load_net.pop(k)
+                complain = True
+            if k.startswith('sr_net.'):
+                load_net[k[7:]] = v
+                load_net.pop(k)
+            if k.startswith('yolo_net.'):
+                load_net.pop(k)
+                complain = True
+
+            if complain:
+                print("Fix saving model pls")
 
         self._print_different_keys_loading(net, load_net, strict)
         net.load_state_dict(load_net, strict=strict)
