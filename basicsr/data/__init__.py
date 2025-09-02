@@ -183,7 +183,7 @@ def my_custom_collate(batch, *, collate_fn_map: Optional[Dict[Union[Type, Tuple[
                                 tensor_list.append(torch.tensor(np.array(v)))
                             elif isinstance(v, np.ndarray) and len(v) > 0:
                                 tensor_list.append(torch.tensor(v))
-                            else:
+                            elif len(v)> 0:
                                 print(f"Case value type {type(v)} is missing")
                         combined_label[k] = torch.cat(tensor_list, dim=0) if tensor_list else torch.empty((0,))
                     elif k == "segments":

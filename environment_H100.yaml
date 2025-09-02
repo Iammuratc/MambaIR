@@ -8,7 +8,6 @@ dependencies:
   - pip
   - cmake
   - ninja
-  - cudatoolkit=12.1
   - ffmpeg
   - filelock
   - numpy

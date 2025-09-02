@@ -59,10 +59,11 @@ class MambaIRv2YoloModel(SRModel):
         self.yolo_model.model.args['dfl'] = opt['yolo_losses']['dlf_gain']
         self.yolo_model.model.args['empty_loss'] = opt['yolo_losses']['empty_loss']
         self.yolo_model.model.args = IterableSimpleNamespace(**self.yolo_model.model.args)
-        self.criterion = v8DetectionLoss(self.yolo_model.model)
 
         self.combined_net = CombinedSRYoloNet(self.net_g, self.yolo_model)
         self.combined_net = self.model_to_device(self.combined_net)
+
+        self.criterion = v8DetectionLoss(self.yolo_model.model)
 
         if self.is_train:
             self.init_training_settings()
@@ -278,9 +279,9 @@ class MambaIRv2YoloModel(SRModel):
             if save_img:
                 if self.opt['is_train']:
                     save_img_path = osp.join(self.opt['path']['visualization'], img_name,
-                                             f'{img_name}_{current_iter}.png')
+                                             f'{img_name}.png')
                 else:
-                    save_img_path = osp.join(self.opt['path']['visualization'], dataset_name, 'images',
+                    save_img_path = osp.join(self.opt['path']['visualization'], 'images',
                                                  f'{img_name}.png')
                 imwrite(sr_img, save_img_path)
 
