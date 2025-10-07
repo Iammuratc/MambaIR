@@ -81,7 +81,7 @@ def _postprocess_yml_value(value):
 
 def parse_options(root_path, is_train=True):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-opt', type=str, default='../options/train/train_MambaIR_SR_x2.yml', help='Path to option YAML file.')
+    parser.add_argument('--opt', type=str, default='../options/train/train_MambaIR_SR_x2.yml', help='Path to option YAML file.')
     parser.add_argument('--launcher', choices=['none', 'pytorch', 'slurm'], default='none', help='job launcher')
     parser.add_argument('--auto_resume', action='store_true')
     parser.add_argument('--debug', action='store_true')
@@ -156,8 +156,10 @@ def parse_options(root_path, is_train=True):
             opt['path'][key] = osp.expanduser(val)
 
     if is_train:
-        experiments_root = osp.join(root_path, 'experiments', opt['name'])
-        opt['path']['experiments_root'] = experiments_root
+        if not opt['path'].get('experiments_root'):
+            experiments_root = osp.join(root_path, 'experiments', opt['name'])
+            opt['path']['experiments_root'] = experiments_root
+        experiments_root = opt['path']['experiments_root']
         opt['path']['models'] = osp.join(experiments_root, 'models')
         opt['path']['training_states'] = osp.join(experiments_root, 'training_states')
         opt['path']['log'] = experiments_root

@@ -2,7 +2,7 @@ from torch.utils import data as data
 from torchvision.transforms.functional import normalize
 
 from basicsr.data.data_util import paired_paths_from_folder, paired_paths_from_lmdb, paired_paths_from_meta_info_file
-from basicsr.data.transforms import augment, paired_random_crop
+from basicsr.data.transforms import augment, paired_random_crop, augment_imgaug
 from basicsr.utils import FileClient, imfrombytes, img2tensor
 from basicsr.utils.matlab_functions import rgb2ycbcr
 from basicsr.utils.registry import DATASET_REGISTRY
@@ -124,9 +124,9 @@ class PairedImageDataset(data.Dataset):
         if self.opt['phase'] == 'train':
             gt_size = self.opt['gt_size']
             # random crop
-            img_gt, img_lq = paired_random_crop(img_gt, img_lq, gt_size, scale, gt_path)
+            img_gt, img_lq, _ = paired_random_crop(img_gt, img_lq, gt_size, scale, gt_path)
             # flip, rotation
-            img_gt, img_lq = augment([img_gt, img_lq], self.opt['use_hflip'], self.opt['use_rot'])
+            img_gt, img_lq = augment_imgaug(imgs=[img_gt, img_lq], opt=self.opt['augmentations'])
 
         # color space transform
         if 'color' in self.opt and self.opt['color'] == 'y':

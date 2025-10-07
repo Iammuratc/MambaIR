@@ -1,13 +1,14 @@
 import torch
 from torch.nn import functional as F
 
+from basicsr.archs import build_network
 from basicsr.utils.registry import MODEL_REGISTRY
 from basicsr.models.sr_model import SRModel
 
 
 @MODEL_REGISTRY.register()
 class MambaIRv2Model(SRModel):
-    """MambaIRv2 model for image restoration."""
+    """MambaIRv2Yolo model for image restoration."""
 
     # test by partitioning
     def test(self):

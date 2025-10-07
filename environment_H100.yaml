@@ -1,0 +1,17 @@
+name: mambair
+channels:
+  - conda-forge
+  - nvidia
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - cmake
+  - ninja
+  - ffmpeg
+  - filelock
+  - numpy
+  - pillow
+  - scipy
+  - typing_extensions
+
