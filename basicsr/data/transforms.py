@@ -188,53 +188,61 @@ def augment_imgaug(imgs, opt, label=None):
     '''
     Augment images using imgaug library.
     '''
-    try:
-        h,w = imgs[0].shape[:2]
-        bbox_list = []
-        for bbox in label['bboxes']:
-            (cx, cy, bw, bh) = bbox
-            bbox_list.append(BoundingBox(x1=(cx-bw/2)*w, y1=(cy-bh/2)*h, x2=(cx+bw/2)*w, y2=(cy+bh/2)*h))
-        bbs = BoundingBoxesOnImage(bbox_list, shape=imgs[0].shape)
-        # Define the augmentation sequence
-        aug = iaa.Sequential([
-            # Horizontal flip with 50% probability
-            iaa.Fliplr(opt['fliplr']),
-            
-            # Vertical flip with 50% probability
-            iaa.Flipud(opt['flipud']),
-            
-            # Rotate by -45 to +45 degrees
-            # iaa.Rotate((-opt['rotate'], opt['rotate'])),
-            
-            # Rotate 90 degrees
-            iaa.Rot90((opt['rot90'][0],opt['rot90'][1])),
-            # Add per-channel noise
-            iaa.Add((-opt['noise_per_channel'], opt['noise_per_channel']), per_channel=True),
-            
-            # Gaussian blur with random sigma
-            # iaa.GaussianBlur(sigma=(0.0, opt['gaussian_sigma']))
-        ], random_order=True).to_deterministic()  # Apply augmentations in random order
-
-        # Apply augmentations to images, mask, and bounding boxes
-        img_gt_aug, bbs_aug = aug(image=imgs[0], bounding_boxes=bbs)
-
-        # 3. Apply same aug to second image (no bboxes)
-        img_lq_aug = aug(image=imgs[1])
-        # images_aug, bbs_aug = aug(images=imgs, bounding_boxes=bbs)
-        bbs_aug = bbs_aug.clip_out_of_image()
-        if len(label['bboxes']) != len(bbs_aug.bounding_boxes):
-            # print(f"Number of bounding boxes (={len(label['bboxes'])}) should remain the same after augmentation (={len(bbs_aug.bounding_boxes)}).")
-            # print("Returning original images before augmentations.")
-            img_gt_aug, img_lq_aug = imgs[0], imgs[1]
-        else:
-            label['bboxes'] = [[(bb.x1 + bb.x2) / (2*w), (bb.y1 + bb.y2) / (2*h), (bb.x2 - bb.x1)/w, (bb.y2 - bb.y1)/h] for bb in bbs_aug.bounding_boxes ]
-
-        return img_gt_aug, img_lq_aug, label
+    aug = iaa.Sequential([
+        # Horizontal flip with 50% probability
+        iaa.Fliplr(opt['fliplr']),
         
-    except Exception as e:
-        print(f"Error occurred: {e}")
-        # or use logging
-        traceback.print_exc()
+        # Vertical flip with 50% probability
+        iaa.Flipud(opt['flipud']),
+        
+        # Rotate by -45 to +45 degrees
+        # iaa.Rotate((-opt['rotate'], opt['rotate'])),
+        
+        # Rotate 90 degrees
+        iaa.Rot90((opt['rot90'][0],opt['rot90'][1])),
+        # Add per-channel noise
+        iaa.Add((-opt['noise_per_channel'], opt['noise_per_channel']), per_channel=True),
+        
+        # Gaussian blur with random sigma
+        # iaa.GaussianBlur(sigma=(0.0, opt['gaussian_sigma']))
+    ], random_order=True).to_deterministic()  # Apply augmentations in random order
+    
+    if label is None:
+        # print(imgs[0].shape, imgs[1].shape)
+        img_0 = aug(image=imgs[0])
+        img_1 = aug(image=imgs[1])
+        # print(img_0.shape, img_1.shape)
+        return img_0, img_1
+    else:
+        try:
+            h,w = imgs[0].shape[:2]
+            bbox_list = []
+            for bbox in label['bboxes']:
+                (cx, cy, bw, bh) = bbox
+                bbox_list.append(BoundingBox(x1=(cx-bw/2)*w, y1=(cy-bh/2)*h, x2=(cx+bw/2)*w, y2=(cy+bh/2)*h))
+            bbs = BoundingBoxesOnImage(bbox_list, shape=imgs[0].shape)
+            # Define the augmentation sequence
+
+            # Apply augmentations to images, mask, and bounding boxes
+            img_gt_aug, bbs_aug = aug(image=imgs[0], bounding_boxes=bbs)
+
+            # 3. Apply same aug to second image (no bboxes)
+            img_lq_aug = aug(image=imgs[1])
+            # images_aug, bbs_aug = aug(images=imgs, bounding_boxes=bbs)
+            bbs_aug = bbs_aug.clip_out_of_image()
+            if len(label['bboxes']) != len(bbs_aug.bounding_boxes):
+                # print(f"Number of bounding boxes (={len(label['bboxes'])}) should remain the same after augmentation (={len(bbs_aug.bounding_boxes)}).")
+                # print("Returning original images before augmentations.")
+                img_gt_aug, img_lq_aug = imgs[0], imgs[1]
+            else:
+                label['bboxes'] = [[(bb.x1 + bb.x2) / (2*w), (bb.y1 + bb.y2) / (2*h), (bb.x2 - bb.x1)/w, (bb.y2 - bb.y1)/h] for bb in bbs_aug.bounding_boxes ]
+
+            return img_gt_aug, img_lq_aug, label
+        
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            # or use logging
+            traceback.print_exc()
 
 def augment(imgs, opt, labels=None, flows=None, return_status=False):
     """Augment: horizontal flips OR rotate (0, 90, 180, 270 degrees).
