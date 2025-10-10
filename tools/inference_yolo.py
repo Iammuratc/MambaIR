@@ -8,9 +8,9 @@ if "/ws/MambaIR" not in sys.path:
 from yolov12.ultralytics.models.yolo import YOLO
 
 
-data_cfg_path = '/ws/MambaIR/experiments/yolo_xview_gsd_30/yolo_train.yaml'
+data_cfg_path = '/ws/MambaIR/experiments/MambaIRv2_x2_xview/yolo_frozen_mamba.yaml'
 
-yolo_path = '/ws/MambaIR/runs/detect/train/weights/best.pt'
+yolo_path = '/ws/MambaIR/experiments/MambaIRv2_x2_xview/yolo_results/train10/weights/best.pt'
 
 
 model = YOLO(yolo_path)
@@ -19,9 +19,9 @@ model = YOLO(yolo_path)
 
 # This runs validation and returns metrics
 metrics = model.val(
-    data='/ws/MambaIR/experiments/yolo_xview_gsd_30/yolo_train.yaml',  # Your data config
-    project='/ws/MambaIR/experiments/yolo_xview_gsd_30/test_results',  # Project to save results
-    split='test',  # or 'test'
+    data=data_cfg_path,  # Your data config
+    project='/ws/MambaIR/experiments/MambaIRv2_x2_xview/yolo_results',  # Project to save results
+    split='val',  # or 'test'
     batch=80,
     imgsz=320,
     iou = 0.60,  # IoU threshold for NMS
