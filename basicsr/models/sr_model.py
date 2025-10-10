@@ -201,43 +201,43 @@ class SRModel(BaseModel):
             pbar = tqdm(total=len(dataloader), unit='image')
 
         for idx, val_data in enumerate(dataloader):
-            img_name = osp.splitext(osp.basename(val_data['lq_path'][0]))[0]
             self.feed_data(val_data)
             self.test()
-
             visuals = self.get_current_visuals()
-            sr_img = tensor2img([visuals['result']])
-            metric_data['img'] = sr_img
-            if 'gt' in visuals:
-                gt_img = tensor2img([visuals['gt']])
-                metric_data['img2'] = gt_img
-                del self.gt
+            for i, img in visuals['result']:
+                img_name = osp.splitext(osp.basename(val_data['lq_path'][i]))[0]
+                sr_img = tensor2img([img])
+                metric_data['img'] = sr_img
+                if 'gt' in visuals:
+                    gt_img = tensor2img([visuals['gt'][i]])
+                    metric_data['img2'] = gt_img
+                    del self.gt
 
-            # tentative for out of GPU memory
-            del self.lq
-            del self.output
-            torch.cuda.empty_cache()
+                # tentative for out of GPU memory
+                del self.lq
+                del self.output
+                torch.cuda.empty_cache()
 
-            if save_img:
-                if self.opt['is_train']:
-                    save_img_path = osp.join(self.opt['path']['visualization'], img_name,
-                                             f'{img_name}_{current_iter}.png')
-                else:
-                    if self.opt['val']['suffix']:
-                        save_img_path = osp.join(self.opt['path']['visualization'], dataset_name,
-                                                 f'{img_name}_{self.opt["val"]["suffix"]}.png')
+                if save_img:
+                    if self.opt['is_train']:
+                        save_img_path = osp.join(self.opt['path']['visualization'], img_name,
+                                                f'{img_name}_{current_iter}.png')
                     else:
-                        save_img_path = osp.join(self.opt['path']['visualization'], dataset_name,
-                                                 f'{img_name}_{self.opt["name"]}.png')
-                imwrite(sr_img, save_img_path)
+                        if 'suffix' in self.opt['val'].keys():
+                            save_img_path = osp.join(self.opt['path']['visualization'], dataset_name,
+                                                    f'{img_name}_{self.opt["val"]["suffix"]}.png')
+                        else:
+                            save_img_path = osp.join(self.opt['path']['visualization'], dataset_name,
+                                                    f'{img_name}_{self.opt["name"]}.png')
+                    imwrite(sr_img, save_img_path)
 
-            if with_metrics:
-                # calculate metrics
-                for name, opt_ in self.opt['val']['metrics'].items():
-                    self.metric_results[name] += calculate_metric(metric_data, opt_)
-            if use_pbar:
-                pbar.update(1)
-                pbar.set_description(f'Test {img_name}')
+                if with_metrics:
+                    # calculate metrics
+                    for name, opt_ in self.opt['val']['metrics'].items():
+                        self.metric_results[name] += calculate_metric(metric_data, opt_)
+                if use_pbar:
+                    pbar.update(1)
+                    pbar.set_description(f'Test {img_name}')
         if use_pbar:
             pbar.close()
 
